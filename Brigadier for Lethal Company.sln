@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brigadier for Lethal Company", "Brigadier for Lethal Company\Brigadier for Lethal Company.csproj", "{E7A18250-0833-462D-ACCC-8CC29FC43A59}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lethal Cheat", "Lethal Cheat\Lethal Cheat.csproj", "{9F894DEF-9884-46B8-B309-8E1ED62EB627}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E7A18250-0833-462D-ACCC-8CC29FC43A59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7A18250-0833-462D-ACCC-8CC29FC43A59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7A18250-0833-462D-ACCC-8CC29FC43A59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7A18250-0833-462D-ACCC-8CC29FC43A59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F894DEF-9884-46B8-B309-8E1ED62EB627}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F894DEF-9884-46B8-B309-8E1ED62EB627}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F894DEF-9884-46B8-B309-8E1ED62EB627}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F894DEF-9884-46B8-B309-8E1ED62EB627}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {06E3B977-E604-43B8-887A-03567A5B16E1}
+	EndGlobalSection
+EndGlobal

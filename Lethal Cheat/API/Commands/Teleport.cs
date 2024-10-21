@@ -1,4 +1,5 @@
 using Brigadier.NET.Builder;
+using Rumi.BrigadierForLethalCompany;
 using Rumi.BrigadierForLethalCompany.API;
 using Rumi.BrigadierForLethalCompany.API.Arguments;
 using Rumi.LethalCheat.Networking;
@@ -9,6 +10,9 @@ namespace Rumi.LethalCheat.API.Commands
 {
     public sealed class Teleport : ServerCommand
     {
+        public const string resultEntityText = "Teleported {targets} to {destination}";
+        public const string resultLocationText = "Teleported {targets} to {x}, {y}, {z}";
+
         Teleport() { }
 
         public override void Register()
@@ -17,75 +21,93 @@ namespace Rumi.LethalCheat.API.Commands
             //teleport <Entity:destination>
             //teleport <Entity[]:targets> <Vector3:location>
             //teleport <Entity[]:targets> <Entity:destination>
-            var node = dispatcher.Register(x =>
-                           x.Literal("teleport")
-                               .Then(x =>
-                                   x.Argument("location", RuniArguments.Vector3())
-                                       .Executes(x =>
-                                       {
-                                           if (x.Source.sender != null)
-                                           {
-                                               Vector3 position = RuniArguments.GetVector3(x, "location");
-                                               LCheatNetworkHandler.TeleportEntity(x.Source.sender, position);
+            var node =
+            dispatcher.Register(static x =>
+                x.Literal("teleport")
+                    .Then(static x =>
+                        x.Argument("location", RuniArguments.Vector3())
+                            .Executes(static x =>
+                            {
+                                if (x.Source.sender != null)
+                                {
+                                    Vector3 position = RuniArguments.GetVector3(x, "location");
+                                    LCheatNetworkHandler.TeleportEntity(x.Source.sender, position);
 
-                                               return 1;
-                                           }
+                                    x.Source.SendCommandResult(resultLocationText.Replace("{targets}", x.Source.sender.GetEntityName()).Replace("{x}", position.x.ToString()).Replace("{y}", position.y.ToString()).Replace("{z}", position.z.ToString()));
 
-                                           return 0;
-                                       })
-                               )
-                               .Then(x =>
-                                   x.Argument("destination", RuniArguments.Selector(false, true))
-                                       .Executes(x =>
-                                       {
-                                           if (x.Source.sender != null)
-                                           {
-                                               var targets = RuniArguments.GetSelector(x, "destination").GetEntitys(x.Source);
-                                               if (targets.CountIsOne())
-                                               {
-                                                   LCheatNetworkHandler.TeleportEntity(x.Source.sender, targets.First().transform.position);
-                                                   return 1;
-                                               }
-                                           }
+                                    return 1;
+                                }
 
-                                           return 0;
-                                       })
-                               )
-                               .Then(x =>
-                                   x.Argument("targets", RuniArguments.Selector(false))
-                                       .Then(x =>
-                                           x.Argument("location", RuniArguments.Vector3())
-                                               .Executes(x =>
-                                               {
-                                                   var targets = RuniArguments.GetSelector(x, "targets").GetEntitys(x.Source);
-                                                   Vector3 position = RuniArguments.GetVector3(x, "location");
+                                return 0;
+                            })
+                    )
+                    .Then(static x =>
+                        x.Argument("destination", RuniArguments.Selector(false, true))
+                            .Executes(static x =>
+                            {
+                                if (x.Source.sender != null)
+                                {
+                                    var targets = RuniArguments.GetSelector(x, "destination").GetEntitys(x.Source);
+                                    if (targets.CountIsOne())
+                                    {
+                                        LCheatNetworkHandler.TeleportEntity(x.Source.sender, targets.First().transform.position);
+                                        x.Source.SendCommandResult(resultEntityText.Replace("{targets}", x.Source.sender.GetEntityName()).Replace("{destination}", targets.GetEntityName()));
 
-                                                   foreach (var target in targets)
-                                                       LCheatNetworkHandler.TeleportEntity(target, position);
+                                        return 1;
+                                    }
+                                }
 
-                                                   return 0;
-                                               })
-                                       )
-                                       .Then(x =>
-                                           x.Argument("destination", RuniArguments.Selector(false, true))
-                                               .Executes(x =>
-                                               {
-                                                   var targets = RuniArguments.GetSelector(x, "targets").GetEntitys(x.Source);
-                                                   var destination = RuniArguments.GetSelector(x, "destination").GetEntitys(x.Source);
+                                return 0;
+                            })
+                    )
+                    .Then(static x =>
+                        x.Argument("targets", RuniArguments.Selector(false))
+                            .Then(static x =>
+                                x.Argument("location", RuniArguments.Vector3())
+                                    .Executes(static x =>
+                                    {
+                                        var targets = RuniArguments.GetSelector(x, "targets").GetEntitys(x.Source);
+                                        Vector3 position = RuniArguments.GetVector3(x, "location");
 
-                                                   if (destination.CountIsOne())
-                                                   {
-                                                       var location = destination.First().transform.position;
-                                                       foreach (var target in targets)
-                                                           LCheatNetworkHandler.TeleportEntity(target, location);
+                                        int count = 0;
+                                        foreach (var target in targets)
+                                        {
+                                            LCheatNetworkHandler.TeleportEntity(target, position);
+                                            count++;
+                                        }
 
-                                                       return 1;
-                                                   }
+                                        x.Source.SendCommandResult(resultLocationText.Replace("{targets}", targets.GetEntityName(count)).Replace("{x}", position.x.ToString()).Replace("{y}", position.y.ToString()).Replace("{z}", position.z.ToString()));
 
-                                                   return 0;
-                                               })
-                                       )
-                               )
+                                        return count;
+                                    })
+                            )
+                            .Then(static x =>
+                                x.Argument("destination", RuniArguments.Selector(false, true))
+                                    .Executes(static x =>
+                                    {
+                                        var targets = RuniArguments.GetSelector(x, "targets").GetEntitys(x.Source);
+                                        var destination = RuniArguments.GetSelector(x, "destination").GetEntitys(x.Source);
+
+                                        if (destination.CountIsOne())
+                                        {
+                                            var location = destination.First().transform.position;
+
+                                            int count = 0;
+                                            foreach (var target in targets)
+                                            {
+                                                LCheatNetworkHandler.TeleportEntity(target, location);
+                                                count++;
+                                            }
+
+                                            x.Source.SendCommandResult(resultEntityText.Replace("{targets}", targets.GetEntityName(count)).Replace("{destination}", destination.GetEntityName()));
+
+                                            return count;
+                                        }
+
+                                        return 0;
+                                    })
+                            )
+                    )
             );
 
             //tp -> teleport

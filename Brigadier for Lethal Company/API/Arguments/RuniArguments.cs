@@ -37,7 +37,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Arguments
         public static CoordinatesArgumentValue<TValue>[] GetCoordinates<TSource, TValue>(CommandContext<TSource> context, string name) => context.GetArgument<CoordinatesArgumentValue<TValue>[]>(name);
 
         #region Vector2
-        public static CoordinatesArgument<float> Vector2(float? min = null, float? max = null, bool allowLocalType = true) => Coordinates(min, max, x => x.ReadFloat(), 2, allowLocalType ? 3 : 0);
+        public static CoordinatesArgument<float> Vector2(float? min = null, float? max = null, bool allowLocalType = true) => Coordinates(min, max, static x => x.ReadFloat(), 2, allowLocalType ? 3 : 0);
         public static Vector2 GetVector2<TSource>(CommandContext<TSource> context, string name) where TSource : ServerCommandSource => GetVector2(context, name, context.Source.position, context.Source.rotation);
         public static Vector2 GetVector2<TSource>(CommandContext<TSource> context, string name, Vector3 offset, Vector3 localRotation)
         {
@@ -64,7 +64,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Arguments
         #endregion
 
         #region Vector2Int
-        public static CoordinatesArgument<int> Vector2Int(int? min = null, int? max = null, bool allowLocalType = true) => Coordinates(min, max, x => x.ReadInt(), 2, allowLocalType ? 3 : 0);
+        public static CoordinatesArgument<int> Vector2Int(int? min = null, int? max = null, bool allowLocalType = true) => Coordinates(min, max, static x => x.ReadInt(), 2, allowLocalType ? 3 : 0);
         public static Vector2Int GetVector2Int<TSource>(CommandContext<TSource> context, string name) where TSource : ServerCommandSource => GetVector2Int(context, name, context.Source.position, context.Source.rotation);
         public static Vector2Int GetVector2Int<TSource>(CommandContext<TSource> context, string name, Vector3 offset, Vector3 localRotation)
         {
@@ -91,7 +91,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Arguments
         #endregion
 
         #region Vector3
-        public static CoordinatesArgument<float> Vector3(float? min = null, float? max = null, bool allowLocalType = true) => Coordinates(min, max, x => x.ReadFloat(), 3, allowLocalType ? 3 : 0);
+        public static CoordinatesArgument<float> Vector3(float? min = null, float? max = null, bool allowLocalType = true) => Coordinates(min, max, static x => x.ReadFloat(), 3, allowLocalType ? 3 : 0);
         public static Vector3 GetVector3<TSource>(CommandContext<TSource> context, string name) where TSource : ServerCommandSource => GetVector3(context, name, context.Source.position, context.Source.rotation);
         public static Vector3 GetVector3<TSource>(CommandContext<TSource> context, string name, Vector3 offset, Vector3 localRotation)
         {
@@ -117,7 +117,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Arguments
         #endregion
 
         #region Vector3Int
-        public static CoordinatesArgument<int> Vector3Int(int? min = null, int? max = null, bool allowLocalType = true) => Coordinates(min, max, x => x.ReadInt(), 3, allowLocalType ? 3 : 0);
+        public static CoordinatesArgument<int> Vector3Int(int? min = null, int? max = null, bool allowLocalType = true) => Coordinates(min, max, static x => x.ReadInt(), 3, allowLocalType ? 3 : 0);
         public static Vector3Int GetVector3Int<TSource>(CommandContext<TSource> context, string name) where TSource : ServerCommandSource => GetVector3Int(context, name, context.Source.position, context.Source.rotation);
         public static Vector3Int GetVector3Int<TSource>(CommandContext<TSource> context, string name, Vector3 offset, Vector3 localRotation)
         {
@@ -146,7 +146,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Arguments
         #endregion
 
         #region Vector4
-        public static CoordinatesArgument<float> Vector4(float? min = null, float? max = null) => Coordinates(min, max, x => x.ReadFloat(), 4, 0);
+        public static CoordinatesArgument<float> Vector4(float? min = null, float? max = null) => Coordinates(min, max, static x => x.ReadFloat(), 4, 0);
         public static Vector4 GetVector4<TSource>(CommandContext<TSource> context, string name, Vector4 offset)
         {
             var argument = GetCoordinates<TSource, float>(context, name);
@@ -168,7 +168,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Arguments
         #endregion
 
         #region Rect
-        public static CoordinatesArgument<float> Rect(float? min = null, float? max = null) => Coordinates(min, max, x => x.ReadFloat(), 4, 0);
+        public static CoordinatesArgument<float> Rect(float? min = null, float? max = null) => Coordinates(min, max, static x => x.ReadFloat(), 4, 0);
         public static Rect GetRect<TSource>(CommandContext<TSource> context, string name, Rect offset)
         {
             var argument = GetCoordinates<TSource, float>(context, name);
@@ -190,7 +190,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Arguments
         #endregion
 
         #region RectInt
-        public static CoordinatesArgument<int> RectInt(int? min = null, int? max = null) => Coordinates(min, max, x => x.ReadInt(), 4, 0);
+        public static CoordinatesArgument<int> RectInt(int? min = null, int? max = null) => Coordinates(min, max, static x => x.ReadInt(), 4, 0);
         public static Rect GetRectInt<TSource>(CommandContext<TSource> context, string name, Rect offset)
         {
             var argument = GetCoordinates<TSource, int>(context, name);
@@ -212,7 +212,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Arguments
         #endregion
 
         #region Color
-        public static CoordinatesArgument<float> Color() => Coordinates(0, 1, x => x.ReadInt() / 255f, 3, 0);
+        public static CoordinatesArgument<float> Color() => Coordinates(0, 1, static x => x.ReadInt() / 255f, 3, 0);
         public static Color GetColor<TSource>(CommandContext<TSource> context, string name, Color offset)
         {
             var argument = GetCoordinates<TSource, float>(context, name);
@@ -232,7 +232,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Arguments
         #endregion
 
         #region Color Alpha
-        public static CoordinatesArgument<float> ColorAlpha() => Coordinates(0, 1, x => x.ReadInt() / 255f, 4, 0);
+        public static CoordinatesArgument<float> ColorAlpha() => Coordinates(0, 1, static x => x.ReadInt() / 255f, 4, 0);
         public static Color GetColorAlpha<TSource>(CommandContext<TSource> context, string name, Color offset)
         {
             var argument = GetCoordinates<TSource, float>(context, name);

@@ -78,5 +78,14 @@ namespace System.Linq
             Random random = new Random();
             return source.OrderBy(x => random.Next());
         }
+
+        /// <summary>
+        /// 배열을 특정 크기로 자릅니다
+        /// </summary>
+        public static IEnumerable<IEnumerable<T>> Split<T>(this T[] arr, int size)
+        {
+            for (var i = 0; i < arr.Length / size + 1; i++)
+                yield return arr.Skip(i * size).Take(size);
+        }
     }
 }

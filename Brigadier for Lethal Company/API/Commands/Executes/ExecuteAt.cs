@@ -18,7 +18,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Commands.Executes
                         x.Literal("at")
                             .Then(static x =>
                                 x.Argument("targets", RuniArguments.Selector(false, true))
-                                    .Redirect(Execute.root, x =>
+                                    .Redirect(Execute.root, static x =>
                                     {
                                         var targets = RuniArguments.GetSelector(x, "targets").GetEntitys(x.Source);
                                         if (targets.Any())

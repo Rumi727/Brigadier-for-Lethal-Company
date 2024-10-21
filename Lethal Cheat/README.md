@@ -12,6 +12,9 @@ There are more commands to add, but I'm not sure when I'll add them.
 
 ## List of commands
 ```
+credit get
+credit set <int:credit>
+
 damage <int:amount>
 damage <Entity:destination> <int:amount>
 
@@ -37,6 +40,8 @@ teleport <Entity:destination>
 teleport <Entity[]:targets> <Vector3:location>
 teleport <Entity[]:targets> <Entity:destination>
 
+time get
 time set <float:time>
+time speed
 time speed <float:speed>
 ```

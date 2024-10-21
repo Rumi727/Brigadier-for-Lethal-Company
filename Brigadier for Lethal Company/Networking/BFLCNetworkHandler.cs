@@ -1,6 +1,8 @@
+using Brigadier.NET.Exceptions;
 using GameNetcodeStuff;
 using Rumi.BrigadierForLethalCompany.API;
 using Rumi.LCNetworks.API;
+using System;
 using Unity.Netcode;
 
 namespace Rumi.BrigadierForLethalCompany.Networking
@@ -43,22 +45,19 @@ namespace Rumi.BrigadierForLethalCompany.Networking
 
             ServerCommand.Reset();
             ServerCommand.AllRegister();
+
+            /*if (IsServer)
+                ServerCommand.AllRegister();
+            else
+                RequestServerCommandNode();*/
         }
 
 
 
-        /*static CommandDispatcher<ServerCommandSource>? receivedDispatcher = new CommandDispatcher<ServerCommandSource>();
-        public static CommandDispatcher<ServerCommandSource> GetDispatcher()
-        {
-            if (instance == null || instance.IsServer)
-                return ServerCommand.dispatcher;
-
-            return receivedDispatcher ?? ServerCommand.dispatcher;
-        }
-
-
-
+        /*
         /// <summary>
+        /// The client requests a command node from the server.
+        /// <br/><br/>
         /// 클라이언트가 서버에게 명령어 노드를 요청합니다.
         /// </summary>
         public static void RequestServerCommandNode()
@@ -82,6 +81,8 @@ namespace Rumi.BrigadierForLethalCompany.Networking
 
 
         /// <summary>
+        /// Send command nodes from the server to the client
+        /// <br/><br/>
         /// 서버에서 클라이언트로 명령어 노드를 보냅니다
         /// </summary>
         public static void SendServerCommandNode()
@@ -90,17 +91,39 @@ namespace Rumi.BrigadierForLethalCompany.Networking
                 return;
 
             Debug.Log($"Sending server command node to client");
-            instance.InternalSendServerCommandNodeClientRpc();
+
+            try
+            {
+                var serializedRootNode = SerializationUtility.SerializeValue(ServerCommand.rootNode, DataFormat.Binary);
+                Debug.Log(serializedRootNode.Length);
+                instance.InternalSendServerCommandNodeClientRpc(serializedRootNode);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError(e);
+                Debug.LogError("Serialization failed!");
+            }
         }
 
         [ClientRpc]
-        void InternalSendServerCommandNodeClientRpc()
+        void InternalSendServerCommandNodeClientRpc(byte[] serializedRootNode)
         {
             if (IsServer)
                 return;
 
             Debug.Log("Received a command node from the server");
-            receivedDispatcher = null;
+
+            try
+            {
+                Debug.Log(serializedRootNode);
+                Debug.Log(serializedRootNode.Length);
+                ServerCommand.rootNode = SerializationUtility.DeserializeValue<RootCommandNode<ServerCommandSource>>(serializedRootNode, DataFormat.Binary);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError(e);
+                Debug.LogError("Deserialization failed!");
+            }
         }*/
 
 
@@ -130,15 +153,62 @@ namespace Rumi.BrigadierForLethalCompany.Networking
             {
                 Debug.Log($"Received command from {player.playerUsername} : {command}");
 
+                ServerCommandSource source = new ServerCommandSource(player);
                 try
                 {
-                    ServerCommand.dispatcher.Execute(command, new ServerCommandSource(player));
+                    ServerCommand.dispatcher.Execute(command, source);
                 }
-                catch (System.Exception e)
+                catch (CommandSyntaxException e)
+                {
+                    source.SendCommandResult(e);
+                }
+                catch (Exception e)
                 {
                     Debug.LogError(e);
                 }
             }
+        }
+
+
+
+        /// <summary>
+        /// 서버 측에서 특정 클라이언트를 제외한 모든 클라이언트로 채팅을 전송합니다
+        /// </summary>
+        public static void AddGlobalChat(string text, PlayerControllerB? targetPlayer)
+        {
+            if (instance == null || !instance.IsServer)
+                return;
+
+            instance.InternalAddGlobalChatClientRpc(text, targetPlayer != null ? targetPlayer.GetComponent<NetworkObject>() : new NetworkObjectReference());
+        }
+
+        /// <summary>
+        /// 서버 측에서 특정 클라이언트로 채팅을 전송합니다
+        /// </summary>
+        public static void AddChat(string text, PlayerControllerB? targetPlayer)
+        {
+            if (instance == null || !instance.IsServer || targetPlayer == null)
+                return;
+
+            NetworkObject? networkObject = targetPlayer.GetComponent<NetworkObject>();
+            if (networkObject != null)
+                instance.InternalAddChatClientRpc(text, networkObject);
+        }
+
+        [ClientRpc]
+        void InternalAddGlobalChatClientRpc(string text, NetworkObjectReference networkObjectReference)
+        {
+            if (networkObjectReference.TryGet(out NetworkObject networkObject) && networkObject.TryGetComponent(out PlayerControllerB player) && player == GameNetworkManager.Instance.localPlayerController)
+                return;
+
+            BFLCUtility.AddChatClient(text);
+        }
+
+        [ClientRpc]
+        void InternalAddChatClientRpc(string text, NetworkObjectReference networkObjectReference)
+        {
+            if (networkObjectReference.TryGet(out NetworkObject networkObject) && networkObject.TryGetComponent(out PlayerControllerB player) && player == GameNetworkManager.Instance.localPlayerController)
+                BFLCUtility.AddChatClient(text);
         }
     }
 }

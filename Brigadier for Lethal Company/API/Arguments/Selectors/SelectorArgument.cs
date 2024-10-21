@@ -103,7 +103,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Arguments.Selectors
 
                         // 구문 분석된 모든 타입 옵션에서 엔티티가 포함되어있을 경우를 감지합니다
                         if (existEntity && !parsedExistEntity && option is SelectorOptionType optionTypeInstance)
-                            parsedExistEntity |= optionTypeInstance.types.Any(x => x != SelectorOptionType.playerType);
+                            parsedExistEntity |= optionTypeInstance.types.Any(static x => x != SelectorOptionType.playerType);
                         else if (option is SelectorOptionLimit optionLimit && optionLimit.limit != null) // 구문 분석된 모든 리미트 옵션에서의 최소 리미트를 가져옵니다
                         {
                             if (parsedMinLimit != null)
@@ -126,7 +126,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Arguments.Selectors
 
                 reader.Expect(']');
 
-                result = options.OrderBy(x => x.sort).ToArray();
+                result = options.OrderBy(static x => x.sort).ToArray();
             }
 
             if (existEntity && parsedExistEntity && onlyPlayer)
@@ -186,7 +186,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Arguments.Selectors
             return builder.BuildFuture();
         }
 
-        static IEnumerable<PlayerControllerB> GetPlayers() => StartOfRound.Instance.ClientPlayerList.Values.Select(x => StartOfRound.Instance.allPlayerScripts[x]);
+        static IEnumerable<PlayerControllerB> GetPlayers() => StartOfRound.Instance.ClientPlayerList.Values.Select(static x => StartOfRound.Instance.allPlayerScripts[x]);
         static IEnumerable<NetworkBehaviour> GetEntitys() => GetPlayers().OfType<NetworkBehaviour>().Concat(UnityEngine.Object.FindObjectsByType<EnemyAI>(FindObjectsSortMode.None)).Concat(UnityEngine.Object.FindObjectsByType<Anomaly>(FindObjectsSortMode.None)).Concat(UnityEngine.Object.FindObjectsByType<GrabbableObject>(FindObjectsSortMode.None));
     }
 }

@@ -1,4 +1,5 @@
 using Brigadier.NET.Builder;
+using Rumi.BrigadierForLethalCompany;
 using Rumi.BrigadierForLethalCompany.API;
 using Rumi.BrigadierForLethalCompany.API.Arguments;
 using Rumi.LethalCheat.Networking;
@@ -7,27 +8,31 @@ namespace Rumi.LethalCheat.API.Commands
 {
     public sealed class Destroy : ServerCommand
     {
+        public const string resultText = "Destroyed {targets}";
+
         Destroy() { }
 
         public override void Register()
         {
             //destroy
             //destroy <Entity:destination>
-            dispatcher.Register(x =>
+            dispatcher.Register(static x =>
                 x.Literal("destroy")
-                    .Executes(x =>
+                    .Executes(static x =>
                     {
                         if (x.Source.sender != null)
                         {
                             LCheatNetworkHandler.DestroyEntity(x.Source.sender);
+                            x.Source.SendCommandResult(resultText.Replace("{targets}", x.Source.sender.GetEntityName()));
+
                             return 1;
                         }
                         else
                             return 0;
                     })
-                    .Then(x =>
+                    .Then(static x =>
                         x.Argument("targets", RuniArguments.Selector())
-                            .Executes(x =>
+                            .Executes(static x =>
                             {
                                 if (x.Source.sender != null)
                                 {
@@ -46,6 +51,8 @@ namespace Rumi.LethalCheat.API.Commands
                                             Debug.LogError(e);
                                         }
                                     }
+
+                                    x.Source.SendCommandResult(resultText.Replace("{targets}", targets.GetEntityName(count)));
 
                                     return count;
                                 }

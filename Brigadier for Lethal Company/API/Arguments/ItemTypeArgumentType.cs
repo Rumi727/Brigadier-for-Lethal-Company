@@ -34,6 +34,6 @@ namespace Rumi.BrigadierForLethalCompany.API.Arguments
         }
 
         static IEnumerable<(string itemName, Item itemType)>? types;
-        public static IEnumerable<(string itemName, Item itemType)> GetItemTypes() => types ??= Resources.FindObjectsOfTypeAll<Item>().Select(x => (x.itemName.Replace(" ", "_").ToLower(), x));
+        public static IEnumerable<(string itemName, Item itemType)> GetItemTypes() => types ??= Resources.FindObjectsOfTypeAll<Item>().Select(static x => (x.itemName.Replace(" ", "_").ToLower(), x));
     }
 }

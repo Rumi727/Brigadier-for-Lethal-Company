@@ -22,19 +22,20 @@
 [type=] 엔티티 종류 (앞에 '!'를 붙여서 부정으로도 사용 가능)\
 
 예 :\
-@e[type=!player,type=!item] (@e[type=!player|!item] 처럼 사용 가능)\
-@e[type=player|enemy] (플레이어 및 적만 가져옴)
+``@e[type=!player,type=!item]`` (``@e[type=!player|!item]`` 처럼 사용 가능)\
+``@e[type=player|enemy]`` (플레이어 및 적만 가져옴)
 
 엔티티 종류 : player, enemy, anomaly, item
 
 [name=] 엔티티 이름 (앞에 '!'를 붙여서 부정으로도 사용 가능)\
-예 : @e[type=Rumi727|jester] (Rumi727 또는 jester라는 닉을 가진 플레이어 및 적 제스터만 가져옴)
+예 : ``@e[name=Rumi727|jester|"특!수&문$자 및 띄어쓰기는 \"로 묶으면 됩니다."]``\
+(``Rumi727`` 또는 ``jester`` 또는 ``특!수&문$자 및 띄어쓰기는 "로 묶으면 됩니다.`` 닉을 가진 플레이어 및 적 제스터만 가져옴)
 
 [distance=] 거리\
-예 : @e[type=!player,distance=..10] 플레이어를 제외한 주변 반경 10m 이내에 있는 모든 엔티티를 가져옴
+예 : ``@e[type=!player,distance=..10]`` 플레이어를 제외한 주변 반경 10m 이내에 있는 모든 엔티티를 가져옴
 
 [limit=] 개수 제한\
-예 : @e[limit=1] 모든 엔티티 중 가장 첫번째 엔티티 하나를 가져옴
+예 : ``@e[limit=1]`` 모든 엔티티 중 가장 첫번째 엔티티 하나를 가져옴
 
 [death=false] 죽지 않은 엔티티만 선택\
 [death=true] 죽은 엔티티만 선택
@@ -59,3 +60,7 @@ Register 메소드에서 ServerCommand.dispatcher에 노드를 등록하면 됩�
 자바이긴 하지만 [Fabric](https://fabricmc.net/wiki/tutorial:commands) 문서도 도움이 될 수 있습니다...ㅋㅋㅋㅋㅋㅋ
 
 썬더스토어 릴리즈에 XML 문서도 포함되어 있으니 그것도 이용하면 도움 될거예요
+
+### 주의!
+
+코딩 실력의 한계로 인해 서버측 커스텀 커맨드를 추가하는 모드가 추가한 명령어가 목록에 표시되려면 클라이언트에도 모드를 깔아야합니다!

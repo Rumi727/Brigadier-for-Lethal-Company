@@ -18,7 +18,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Commands.Executes
                         x.Literal("loop")
                             .Then(static x =>
                                 x.Argument("count", RuniArguments.Integer())
-                                    .Fork(Execute.root, x => Enumerable.Repeat(new ServerCommandSource(x.Source), RuniArguments.GetInteger(x, "count")).ToArray())
+                                    .Fork(Execute.root, static x => Enumerable.Repeat(x.Source.Clone(), RuniArguments.GetInteger(x, "count")).ToArray())
                             )
                     )
             );

@@ -34,20 +34,20 @@ namespace Rumi.BrigadierForLethalCompany.API
             {
                 List<Suggestion> suggestions = (await dispatcher.GetCompletionSuggestions(parseResults, cursor)).List;
                 if (suggestions.Count > 0)
-                    return string.Join("\n", suggestions.Select(x => x.Text));
+                    return string.Join("\n", suggestions.Select(static x => x.Text));
             }
 
             // 예외
             {
                 var exceptions = parseResults.Exceptions;
                 if (exceptions.Count > 0)
-                    return string.Join("\n", exceptions.Select(x => x.Value.Message));
+                    return string.Join("\n", exceptions.Select(static x => x.Value.Message));
             }
 
             // 설명
             {
                 SuggestionContext<TSource> context = parseResults.Context.FindSuggestionContext(cursor);
-                if (context.Parent.Children.Any(x => x is ArgumentCommandNode<TSource>))
+                if (context.Parent.Children.Any(static x => x is ArgumentCommandNode<TSource>))
                 {
                     ICollection<string> usages = dispatcher.GetSmartUsage(context.Parent, source).Values;
                     if (usages.Count > 0)

@@ -1,5 +1,6 @@
 using Brigadier.NET.Builder;
 using GameNetcodeStuff;
+using Rumi.BrigadierForLethalCompany;
 using Rumi.BrigadierForLethalCompany.API;
 using Rumi.BrigadierForLethalCompany.API.Arguments;
 using Rumi.LethalCheat.Networking;
@@ -8,22 +9,26 @@ namespace Rumi.LethalCheat.API.Commands
 {
     public sealed class Damage : ServerCommand
     {
+        public const string resultText = "Applied {value} damage to {targets}";
+
         Damage() { }
 
         public override void Register()
         {
             //damage <int:amount>
             //damage <Entity:destination> <int:amount>
-            dispatcher.Register(x =>
+            dispatcher.Register(static x =>
                 x.Literal("damage")
-                    .Then(x =>
+                    .Then(static x =>
                         x.Argument("amount", RuniArguments.Integer())
-                            .Executes(x =>
+                            .Executes(static x =>
                             {
                                 if (x.Source.sender != null)
                                 {
                                     int amount = RuniArguments.GetInteger(x, "amount");
                                     LCheatNetworkHandler.DamageEntity(x.Source.sender, amount);
+
+                                    x.Source.SendCommandResult(resultText.Replace("{value}", amount.ToString()).Replace("{targets}", x.Source.sender.GetEntityName()));
 
                                     return 1;
                                 }
@@ -31,11 +36,11 @@ namespace Rumi.LethalCheat.API.Commands
                                     return 0;
                             })
                     )
-                    .Then(x =>
+                    .Then(static x =>
                         x.Argument("targets", RuniArguments.Selector())
-                            .Then(x =>
+                            .Then(static x =>
                                 x.Argument("amount", RuniArguments.Integer())
-                                    .Executes(x =>
+                                    .Executes(static x =>
                                     {
                                         var targets = RuniArguments.GetSelector(x, "targets").GetEntitys(x.Source);
                                         int amount = RuniArguments.GetInteger(x, "amount");
@@ -43,6 +48,9 @@ namespace Rumi.LethalCheat.API.Commands
 
                                         foreach (var entity in targets)
                                         {
+                                            if (entity is not PlayerControllerB or EnemyAI)
+                                                continue;
+
                                             try
                                             {
                                                 LCheatNetworkHandler.DamageEntity(entity, amount);
@@ -53,6 +61,8 @@ namespace Rumi.LethalCheat.API.Commands
                                                 Debug.LogError(e);
                                             }
                                         }
+
+                                        x.Source.SendCommandResult(resultText.Replace("{value}", amount.ToString()).Replace("{targets}", targets.GetEntityName(count)));
 
                                         return count;
                                     })

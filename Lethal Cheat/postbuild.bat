@@ -6,5 +6,6 @@ set name=%name:~1,-1%
 
 copy "%dllpath%/%name%.dll" "Releases/%name%.dll"
 copy "%dllpath%/%name%.xml" "Releases/%name%.xml"
+copy "README.md" "Releases/README.md"
 
 bz c -storeroot:no "Releases/%name%.zip" "Releases"

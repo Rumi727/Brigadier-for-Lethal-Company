@@ -17,11 +17,15 @@ namespace Rumi.BrigadierForLethalCompany.API.Commands.Executes
                             .Redirect(Execute.root, static x =>
                             {
                                 Debug.Log(x.Source);
+                                x.Source.SendCommandResult(Log.resultText);
+
                                 return x.Source;
                             })
-                            .Executes(x =>
+                            .Executes(static x =>
                             {
                                 Debug.Log(x.Source);
+                                x.Source.SendCommandResult(Log.resultText);
+
                                 return 1;
                             })
                     )

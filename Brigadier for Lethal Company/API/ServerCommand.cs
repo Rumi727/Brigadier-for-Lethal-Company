@@ -16,7 +16,11 @@ namespace Rumi.BrigadierForLethalCompany.API
         /// <br/><br/>
         /// <see cref="dispatcher"/>의 루트
         /// </summary>
-        public static RootCommandNode<ServerCommandSource> chatRoot => dispatcher.GetRoot();
+        public static RootCommandNode<ServerCommandSource> rootNode
+        {
+            get => dispatcher.GetRoot();
+            set => dispatcher = new CommandDispatcher<ServerCommandSource>(value);
+        }
 
         /// <summary>
         /// Server-side dispatcher for this client

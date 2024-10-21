@@ -34,6 +34,6 @@ namespace Rumi.BrigadierForLethalCompany.API.Arguments
         }
 
         static IEnumerable<(string anomalyName, AnomalyType anomalyType)>? types;
-        public static IEnumerable<(string anomalyName, AnomalyType anomalyType)> GetAnomalyTypes() => types ??= Resources.FindObjectsOfTypeAll<AnomalyType>().Select(x => (x.anomalyName.Replace(" ", "_").ToLower(), x));
+        public static IEnumerable<(string anomalyName, AnomalyType anomalyType)> GetAnomalyTypes() => types ??= Resources.FindObjectsOfTypeAll<AnomalyType>().Select(static x => (x.anomalyName.Replace(" ", "_").ToLower(), x));
     }
 }

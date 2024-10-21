@@ -7,6 +7,8 @@ namespace Rumi.BrigadierForLethalCompany.API.Commands
 {
     public sealed class Log : ServerCommand
     {
+        public const string resultText = "Successfully sent the log command to the server";
+
         Log() { }
 
         public override void Register()
@@ -17,29 +19,32 @@ namespace Rumi.BrigadierForLethalCompany.API.Commands
             //log entitys
             //log anomalys
             //log items
-            dispatcher.Register(x =>
+            dispatcher.Register(static x =>
                 x.Literal("log")
-                    .Then(x =>
-                        x.Argument("message", RuniArguments.String())
-                            .Executes(x =>
+                    .Then(static x =>
+                        x.Argument("message", RuniArguments.GreedyString())
+                            .Executes(static x =>
                             {
                                 string text = RuniArguments.GetString(x, "message");
+
                                 Debug.Log(text);
+                                x.Source.SendCommandResult(resultText);
+
                                 return text.Length;
                             })
                     )
-                    .Then(x =>
+                    .Then(static x =>
                         x.Literal("source")
-                            .Executes(x =>
+                            .Executes(static x =>
                             {
                                 string text = x.Source.ToString();
                                 Debug.Log(text);
                                 return text.Length;
                             })
                     )
-                    .Then(x =>
+                    .Then(static x =>
                         x.Literal("types")
-                            .Executes(x =>
+                            .Executes(static x =>
                             {
                                 Debug.Log(SelectorOptionType.playerType);
                                 Debug.Log(SelectorOptionType.enemyType);
@@ -48,9 +53,9 @@ namespace Rumi.BrigadierForLethalCompany.API.Commands
                                 return 4;
                             })
                     )
-                    .Then(x =>
+                    .Then(static x =>
                         x.Literal("entitys")
-                            .Executes(x =>
+                            .Executes(static x =>
                             {
                                 int count = 0;
                                 foreach ((string enemyName, _) in EnemyTypeArgumentType.GetEnemyTypes())
@@ -62,9 +67,9 @@ namespace Rumi.BrigadierForLethalCompany.API.Commands
                                 return count;
                             })
                     )
-                    .Then(x =>
+                    .Then(static x =>
                         x.Literal("anomalys")
-                            .Executes(x =>
+                            .Executes(static x =>
                             {
                                 int count = 0;
                                 foreach ((string enemyName, _) in AnomalyTypeArgumentType.GetAnomalyTypes())
@@ -76,9 +81,9 @@ namespace Rumi.BrigadierForLethalCompany.API.Commands
                                 return count;
                             })
                     )
-                    .Then(x =>
+                    .Then(static x =>
                         x.Literal("items")
-                            .Executes(x =>
+                            .Executes(static x =>
                             {
                                 int count = 0;
                                 foreach ((string itemName, _) in ItemTypeArgumentType.GetItemTypes())

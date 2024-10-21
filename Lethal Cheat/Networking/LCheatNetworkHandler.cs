@@ -1,7 +1,5 @@
 using GameNetcodeStuff;
-using Rumi.BrigadierForLethalCompany.API.Arguments;
 using Rumi.LCNetworks.API;
-using System.Reflection.Emit;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -17,6 +15,7 @@ namespace Rumi.LethalCheat.Networking
 
 
 
+        #region Teleport
         /// <summary>
         /// 선택한 엔티티를 특정 좌표로 텔레포트합니다
         /// </summary>
@@ -43,9 +42,11 @@ namespace Rumi.LethalCheat.Networking
             if (entity.TryGet(out NetworkObject networkObject))
                 networkObject.transform.position = position;
         }
+        #endregion
 
 
 
+        #region Kill Entity
         /// <summary>
         /// 선택한 엔티티를 죽입니다 (죽일 수 없을 경우, 파괴합니다)
         /// </summary>
@@ -70,9 +71,11 @@ namespace Rumi.LethalCheat.Networking
             else if (networkObject.TryGetComponent(out EnemyAI enemy))
                 enemy.KillEnemy();
         }
+        #endregion
 
 
 
+        #region Destroy Entity
         /// <summary>
         /// 선택한 엔티티를 파괴합니다 (플레이어는 파괴할 수 없습니다)
         /// </summary>
@@ -85,9 +88,11 @@ namespace Rumi.LethalCheat.Networking
             if (entity is not PlayerControllerB && entity.TryGetComponent(out NetworkObject networkObject))
                 networkObject.Despawn();
         }
+        #endregion
 
 
 
+        #region Damage Entity
         /// <summary>
         /// 선택한 엔티티에 데미지를 줍니다
         /// </summary>
@@ -112,9 +117,11 @@ namespace Rumi.LethalCheat.Networking
             else if (networkObject.TryGetComponent(out EnemyAI enemy))
                 enemy.HitEnemy(damage, null, true);
         }
+        #endregion
 
 
 
+        #region Summon Entity
         public static void SummonEntity(EnemyType entity, Vector3 position)
         {
             GameObject gameObject = Instantiate(entity.enemyPrefab, position, Quaternion.identity);
@@ -137,7 +144,7 @@ namespace Rumi.LethalCheat.Networking
         {
             GameObject gameObject = Instantiate(entity.spawnPrefab, position, Quaternion.Euler(entity.restingRotation));
             GrabbableObject grabbableObject = gameObject.GetComponent<GrabbableObject>();
-            if (grabbableObject.GetComponent<ScanNodeProperties>() != null)
+            if (grabbableObject.GetComponentInChildren<ScanNodeProperties>() != null)
                 grabbableObject.SetScrapValue(price);
 
             NetworkObject networkObject = gameObject.GetComponent<NetworkObject>();
@@ -145,8 +152,21 @@ namespace Rumi.LethalCheat.Networking
 
             return networkObject;
         }
+        #endregion
 
 
+
+        #region Time
+        public static float GetTimeHour()
+        {
+            if (instance == null || !instance.IsServer)
+                return 0;
+
+            var timeInstance = TimeOfDay.Instance;
+            var level = timeInstance.currentLevel;
+
+            return (timeInstance.globalTime * level.DaySpeedMultiplier / timeInstance.lengthOfHours) + 6;
+        }
 
         public static void SetTimeHour(float time)
         {
@@ -173,8 +193,12 @@ namespace Rumi.LethalCheat.Networking
 
             timeInstance.RefreshClockUI();
         }
+        #endregion
 
 
+
+        #region Time Speed
+        public static float GetTimeSpeed() => TimeOfDay.Instance.globalTimeSpeedMultiplier;
 
         public static void SetTimeSpeed(float speed)
         {
@@ -186,8 +210,18 @@ namespace Rumi.LethalCheat.Networking
 
         [ClientRpc]
         void InternalSetTimeSpeedClientRpc(float speed) => TimeOfDay.Instance.globalTimeSpeedMultiplier = speed;
+        #endregion
 
 
+
+        #region Credit
+        public static int GetCredit()
+        {
+            if (instance == null || !instance.IsServer)
+                return 0;
+
+            return FindAnyObjectByType<Terminal>().groupCredits;
+        }
 
         public static void SetCredit(int credit)
         {
@@ -200,5 +234,6 @@ namespace Rumi.LethalCheat.Networking
             terminal.groupCredits = credit;
             terminal.SyncGroupCreditsServerRpc(terminal.groupCredits, terminal.numberOfItemsInDropship);
         }
+        #endregion
     }
 }

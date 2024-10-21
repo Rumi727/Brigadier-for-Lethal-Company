@@ -11,9 +11,9 @@ namespace Rumi.BrigadierForLethalCompany.API.Commands.Executes
             get
             {
                 //execute run ...
-                return _execute ??= ServerCommand.dispatcher.Register(x =>
+                return _execute ??= ServerCommand.dispatcher.Register(static x =>
                     x.Literal("execute")
-                        .Then(x =>
+                        .Then(static x =>
                             x.Literal("run")
                                 .Redirect(ServerCommand.dispatcher.GetRoot())
                         )

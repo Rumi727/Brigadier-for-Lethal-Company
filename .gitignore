@@ -398,5 +398,7 @@ FodyWeavers.xsd
 *.sln.iml
 
 # Custom Git Ignores
-dlls/*.dll
-dlls/*.xml
+Brigadier for Lethal Company/dlls/*.dll
+Brigadier for Lethal Company/dlls/*.xml
+Lethal Cheat/dlls/*.dll
+Lethal Cheat/dlls/*.xml

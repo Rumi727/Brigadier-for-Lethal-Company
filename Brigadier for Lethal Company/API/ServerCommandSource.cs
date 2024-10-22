@@ -67,7 +67,7 @@ namespace Rumi.BrigadierForLethalCompany.API
             BFLCNetworkHandler.AddChat($"<color=white><size=10>{text}</size></color>", player);
 
             if (sendGlobal)
-                BFLCNetworkHandler.AddGlobalChat($"<color=#aaaaaa><size=10><i>[{sender.GetEntityName()}]{text}</i></size></color>", player);
+                BFLCNetworkHandler.AddGlobalChat($"<color=#aaaaaa><size=10><i>[{sender.GetEntityName()}] {text}</i></size></color>", player);
         }
 
         /// <summary>커맨드 결과를 채팅에 전송합니다</summary>

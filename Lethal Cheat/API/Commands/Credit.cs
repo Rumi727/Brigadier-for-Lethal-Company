@@ -22,7 +22,7 @@ namespace Rumi.LethalCheat.API.Commands
                             .Executes(static x =>
                             {
                                 int credit = LCheatNetworkHandler.GetCredit();
-                                x.Source.SendCommandResult(resultGetText.Replace("{value}", credit.ToString()));
+                                x.Source.SendCommandResult(resultGetText.Replace("{value}", credit.ToString()), false);
 
                                 return credit;
                             })

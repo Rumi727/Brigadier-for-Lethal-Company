@@ -61,4 +61,5 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="IF $(ConfigurationName)==Debug call postbuild-debug.bat &quot;$(OutputPath)&quot; &quot;$(AssemblyName)&quot;&#xD;&#xA;IF $(ConfigurationName)==Release call postbuild.bat &quot;$(OutputPath)&quot; &quot;$(AssemblyName)&quot;" />
   </Target>
+  <ProjectExtensions><VisualStudio><UserProperties releases_4manifest_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 </Project>

@@ -12,7 +12,7 @@ namespace Rumi.BrigadierForLethalCompany.Networking
     /// <br/><br/>
     /// BFLC 모드의 네트워크를 담당하며, 몇가지 API가 마련되어있습니다
     /// </summary>
-    public sealed class BFLCNetworkHandler : LCNetworkBehaviour<BFLCNetworkHandler>
+    public sealed class BFLCNetworkHandler : LCNHNetworkBehaviour<BFLCNetworkHandler>
     {
         /// <summary>
         /// The name of the handler.
@@ -140,16 +140,16 @@ namespace Rumi.BrigadierForLethalCompany.Networking
                 return;
 
             Debug.Log("Sending commands to the server side : " + command);
-            instance.InternalExecuteCommandServerRpc(command, GameNetworkManager.Instance.localPlayerController.GetComponent<NetworkObject>());
+            instance.InternalExecuteCommandServerRpc(command, GameNetworkManager.Instance.localPlayerController);
         }
 
         [ServerRpc(RequireOwnership = false)]
-        void InternalExecuteCommandServerRpc(string command, NetworkObjectReference networkObjectReference)
+        void InternalExecuteCommandServerRpc(string command, NetworkBehaviourReference entityRef)
         {
             if (!IsServer)
                 return;
 
-            if (networkObjectReference.TryGet(out NetworkObject networkObject) && networkObject.TryGetComponent(out PlayerControllerB player))
+            if (entityRef.TryGet(out var entity) && entity is PlayerControllerB player)
             {
                 Debug.Log($"Received command from {player.playerUsername} : {command}");
 

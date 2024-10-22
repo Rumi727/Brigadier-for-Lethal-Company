@@ -30,7 +30,7 @@ namespace Rumi.LethalCheat.API.Commands
 
                                 int hour = Mathf.FloorToInt(time);
                                 int minute = (int)((time - hour) * 60);
-                                x.Source.SendCommandResult(resultGetText.Replace("{h}", hour.ToString()).Replace("{m}", minute.ToString()).Replace("{value}", time.ToString()));
+                                x.Source.SendCommandResult(resultGetText.Replace("{h}", hour.ToString()).Replace("{m}", minute.ToString("00")).Replace("{value}", time.ToString()), false);
 
                                 return hour;
                             })
@@ -46,18 +46,18 @@ namespace Rumi.LethalCheat.API.Commands
 
                                         int hour = Mathf.FloorToInt(time);
                                         int minute = (int)((time - hour) * 60);
-                                        x.Source.SendCommandResult(resultSetText.Replace("{h}", hour.ToString()).Replace("{m}", minute.ToString()).Replace("{value}", time.ToString()));
+                                        x.Source.SendCommandResult(resultSetText.Replace("{h}", hour.ToString()).Replace("{m}", minute.ToString("00")).Replace("{value}", time.ToString()), false);
 
                                         return hour;
                                     })
                             )
-                                   
+
                     ).Then(static x =>
                         x.Literal("speed")
                             .Executes(static x =>
                             {
                                 float speed = LCheatNetworkHandler.GetTimeSpeed();
-                                x.Source.SendCommandResult(resultSpeedGetText.Replace("{value}", speed.ToString()));
+                                x.Source.SendCommandResult(resultSpeedGetText.Replace("{value}", speed.ToString()), false);
 
                                 return Mathf.FloorToInt(speed);
                             })

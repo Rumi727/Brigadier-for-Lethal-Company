@@ -8,7 +8,7 @@ namespace Rumi.LethalCheat.Networking
     /// <summary>
     /// LCheat 모드의 네트워크를 담당하며, 몇가지 API가 마련되어있습니다
     /// </summary>
-    public sealed class LCheatNetworkHandler : LCNetworkBehaviour<LCheatNetworkHandler>
+    public sealed class LCheatNetworkHandler : LCNHNetworkBehaviour<LCheatNetworkHandler>
     {
         public override string name => "LCheat Network Handler";
         public override uint globalIdHash => 591605829;
@@ -26,21 +26,18 @@ namespace Rumi.LethalCheat.Networking
             if (instance == null || !instance.IsServer)
                 return;
 
-            if (!entity.TryGetComponent(out NetworkObject networkObject))
-                return;
-
             if (entity is EnemyAI enemy)
                 enemy.agent.Warp(position);
 
             entity.transform.position = position;
-            instance.InternalTeleportEntityClientRpc(networkObject, position);
+            instance.InternalTeleportEntityClientRpc(entity, position);
         }
 
         [ClientRpc]
-        void InternalTeleportEntityClientRpc(NetworkObjectReference entity, Vector3 position)
+        void InternalTeleportEntityClientRpc(NetworkBehaviourReference entityRef, Vector3 position)
         {
-            if (entity.TryGet(out NetworkObject networkObject))
-                networkObject.transform.position = position;
+            if (entityRef.TryGet(out var entity))
+                entity.transform.position = position;
         }
         #endregion
 
@@ -56,19 +53,19 @@ namespace Rumi.LethalCheat.Networking
             if (instance == null || !instance.IsServer)
                 return;
 
-            if (entity.TryGetComponent(out NetworkObject networkObject) && entity is PlayerControllerB or EnemyAI)
-                instance.InternalKillEntityClientRpc(networkObject);
+            if (entity is PlayerControllerB or EnemyAI)
+                instance.InternalKillEntityClientRpc(entity);
         }
 
         [ClientRpc]
-        void InternalKillEntityClientRpc(NetworkObjectReference entity)
+        void InternalKillEntityClientRpc(NetworkBehaviourReference entityRef)
         {
-            if (!entity.TryGet(out NetworkObject networkObject))
+            if (!entityRef.TryGet(out var entity))
                 return;
 
-            if (networkObject.TryGetComponent(out PlayerControllerB player))
+            if (entity is PlayerControllerB player)
                 player.KillPlayer(Vector3.up * 5);
-            else if (networkObject.TryGetComponent(out EnemyAI enemy))
+            else if (entity is EnemyAI enemy)
                 enemy.KillEnemy();
         }
         #endregion
@@ -102,19 +99,19 @@ namespace Rumi.LethalCheat.Networking
             if (instance == null || !instance.IsServer)
                 return;
 
-            if (entity.TryGetComponent(out NetworkObject networkObject) && entity is PlayerControllerB or EnemyAI)
-                instance.InternalDamageEntityClientRpc(networkObject, damage);
+            if (entity is PlayerControllerB or EnemyAI)
+                instance.InternalDamageEntityClientRpc(entity, damage);
         }
 
         [ClientRpc]
-        void InternalDamageEntityClientRpc(NetworkObjectReference entity, int damage)
+        void InternalDamageEntityClientRpc(NetworkBehaviourReference entityRef, int damage)
         {
-            if (!entity.TryGet(out NetworkObject networkObject))
+            if (!entityRef.TryGet(out var entity))
                 return;
 
-            if (networkObject.TryGetComponent(out PlayerControllerB player))
+            if (entity is PlayerControllerB player)
                 player.DamagePlayer(damage);
-            else if (networkObject.TryGetComponent(out EnemyAI enemy))
+            else if (entity is EnemyAI enemy)
                 enemy.HitEnemy(damage, null, true);
         }
         #endregion
@@ -124,6 +121,9 @@ namespace Rumi.LethalCheat.Networking
         #region Summon Entity
         public static void SummonEntity(EnemyType entity, Vector3 position)
         {
+            if (instance == null || !instance.IsServer)
+                return;
+
             GameObject gameObject = Instantiate(entity.enemyPrefab, position, Quaternion.identity);
             gameObject.GetComponentInChildren<NetworkObject>().Spawn(true);
 
@@ -133,6 +133,9 @@ namespace Rumi.LethalCheat.Networking
 
         public static void SummonEntity(AnomalyType entity, Vector3 position)
         {
+            if (instance == null || !instance.IsServer)
+                return;
+
             GameObject gameObject = Instantiate(entity.anomalyPrefab, position, Quaternion.identity);
             gameObject.GetComponentInChildren<NetworkObject>().Spawn(true);
 
@@ -140,17 +143,28 @@ namespace Rumi.LethalCheat.Networking
             RoundManager.Instance.SpawnedAnomalies.Add(anomaly);
         }
 
-        public static NetworkObject SummonEntity(Item entity, Vector3 position, int price = 0)
+        public static void SummonEntity(Item entity, Vector3 position, int price = 0)
         {
+            if (instance == null || !instance.IsServer)
+                return;
+
             GameObject gameObject = Instantiate(entity.spawnPrefab, position, Quaternion.Euler(entity.restingRotation));
-            GrabbableObject grabbableObject = gameObject.GetComponent<GrabbableObject>();
-            if (grabbableObject.GetComponentInChildren<ScanNodeProperties>() != null)
-                grabbableObject.SetScrapValue(price);
 
             NetworkObject networkObject = gameObject.GetComponent<NetworkObject>();
             networkObject.Spawn(true);
 
-            return networkObject;
+            instance.InternalSummonEntityClientRpc(networkObject, price);
+        }
+
+        [ClientRpc]
+        void InternalSummonEntityClientRpc(NetworkObjectReference entityRef, int price)
+        {
+            if (!entityRef.TryGet(out var entity))
+                return;
+
+            GrabbableObject grabbableObject = entity.gameObject.GetComponent<GrabbableObject>();
+            if (grabbableObject.GetComponentInChildren<ScanNodeProperties>() != null)
+                grabbableObject.SetScrapValue(price);
         }
         #endregion
 
@@ -204,7 +218,7 @@ namespace Rumi.LethalCheat.Networking
         {
             if (instance == null || !instance.IsServer)
                 return;
-            
+
             instance.InternalSetTimeSpeedClientRpc(speed);
         }
 
@@ -229,7 +243,7 @@ namespace Rumi.LethalCheat.Networking
                 return;
 
             Terminal terminal = FindAnyObjectByType<Terminal>();
-            
+
             terminal.useCreditsCooldown = true;
             terminal.groupCredits = credit;
             terminal.SyncGroupCreditsServerRpc(terminal.groupCredits, terminal.numberOfItemsInDropship);

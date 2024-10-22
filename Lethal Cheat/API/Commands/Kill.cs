@@ -1,9 +1,9 @@
 using Brigadier.NET.Builder;
+using GameNetcodeStuff;
+using Rumi.BrigadierForLethalCompany;
 using Rumi.BrigadierForLethalCompany.API;
 using Rumi.BrigadierForLethalCompany.API.Arguments;
 using Rumi.LethalCheat.Networking;
-using Rumi.BrigadierForLethalCompany;
-using GameNetcodeStuff;
 
 namespace Rumi.LethalCheat.API.Commands
 {

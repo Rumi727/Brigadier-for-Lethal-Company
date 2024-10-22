@@ -40,6 +40,8 @@ teleport <Entity:destination>
 teleport <Entity[]:targets> <Vector3:location>
 teleport <Entity[]:targets> <Entity:destination>
 
+tellraw <Entity[]:targets> <string:message>
+
 time get
 time set <float:time>
 time speed

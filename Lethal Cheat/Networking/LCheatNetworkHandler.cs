@@ -19,7 +19,7 @@ namespace Rumi.LethalCheat.Networking
         /// <summary>
         /// 선택한 엔티티를 특정 좌표로 텔레포트합니다
         /// </summary>
-        /// <param name="entity">텔레포트할 <see cref="NetworkObject"/> 스크립트가 붙어 있는 <see cref="NetworkBehaviour"/> 오브젝트</param>
+        /// <param name="entity">텔레포트할 <see cref="NetworkBehaviour"/> 오브젝트</param>
         /// <param name="position">텔레포트할 좌표</param>
         public static void TeleportEntity(NetworkBehaviour entity, Vector3 position)
         {
@@ -47,7 +47,7 @@ namespace Rumi.LethalCheat.Networking
         /// <summary>
         /// 선택한 엔티티를 죽입니다 (죽일 수 없을 경우, 파괴합니다)
         /// </summary>
-        /// <param name="entity">죽일 <see cref="NetworkObject"/> 스크립트가 붙어 있는 <see cref="NetworkBehaviour"/> 오브젝트</param>
+        /// <param name="entity">죽일 <see cref="NetworkBehaviour"/> 오브젝트</param>
         public static void KillEntity(NetworkBehaviour entity)
         {
             if (instance == null || !instance.IsServer)
@@ -62,7 +62,7 @@ namespace Rumi.LethalCheat.Networking
         {
             if (!entityRef.TryGet(out var entity))
                 return;
-
+            
             if (entity is PlayerControllerB player)
                 player.KillPlayer(Vector3.up * 5);
             else if (entity is EnemyAI enemy)
@@ -93,7 +93,7 @@ namespace Rumi.LethalCheat.Networking
         /// <summary>
         /// 선택한 엔티티에 데미지를 줍니다
         /// </summary>
-        /// <param name="entity">데미지를 줄 <see cref="NetworkObject"/> 스크립트가 붙어 있는 <see cref="NetworkBehaviour"/> 오브젝트</param>
+        /// <param name="entity">데미지를 줄 <see cref="NetworkBehaviour"/> 오브젝트</param>
         public static void DamageEntity(NetworkBehaviour entity, int damage)
         {
             if (instance == null || !instance.IsServer)

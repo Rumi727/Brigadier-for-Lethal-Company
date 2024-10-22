@@ -15,7 +15,7 @@ namespace Rumi.BrigadierForLethalCompany
             if (x.ChatMessageHistory.Count >= 4)
                 x.ChatMessageHistory.Remove(x.ChatMessageHistory[0]);
 
-            x.ChatMessageHistory.Add(text);
+            x.ChatMessageHistory.Add("<color=white>" + text + "</color>");
 
             x.chatText.text = string.Empty;
             for (int i = 0; i < x.ChatMessageHistory.Count; i++)

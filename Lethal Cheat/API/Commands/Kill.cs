@@ -40,7 +40,7 @@ namespace Rumi.LethalCheat.API.Commands
 
                                 foreach (var entity in targets)
                                 {
-                                    if (entity is not PlayerControllerB or EnemyAI)
+                                    if (entity is not (PlayerControllerB or EnemyAI))
                                         continue;
 
                                     try

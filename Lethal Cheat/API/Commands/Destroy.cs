@@ -1,4 +1,5 @@
 using Brigadier.NET.Builder;
+using GameNetcodeStuff;
 using Rumi.BrigadierForLethalCompany;
 using Rumi.BrigadierForLethalCompany.API;
 using Rumi.BrigadierForLethalCompany.API.Arguments;
@@ -20,7 +21,7 @@ namespace Rumi.LethalCheat.API.Commands
                 x.Literal("destroy")
                     .Executes(static x =>
                     {
-                        if (x.Source.sender != null)
+                        if (x.Source.sender != null && x.Source.player == null)
                         {
                             LCheatNetworkHandler.DestroyEntity(x.Source.sender);
                             x.Source.SendCommandResult(resultText.Replace("{targets}", x.Source.sender.GetEntityName()));
@@ -41,6 +42,9 @@ namespace Rumi.LethalCheat.API.Commands
 
                                     foreach (var entity in targets)
                                     {
+                                        if (entity is PlayerControllerB)
+                                            continue;
+
                                         try
                                         {
                                             LCheatNetworkHandler.DestroyEntity(entity);

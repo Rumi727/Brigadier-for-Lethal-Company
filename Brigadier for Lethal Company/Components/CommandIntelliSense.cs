@@ -77,6 +77,8 @@ namespace Rumi.BrigadierForLethalCompany.Components
             chatField.caretColor = isCommand ? Color.white : orgCaretColor;
             chatField.textComponent.color = isCommand ? Color.white : orgTextColor;
 
+            chatField.richText = !isCommand;
+
             text.text.fontSize = 14 * Mathf.Clamp(30f / text.text.text.Count(static x => x == '\n'), 0, 1);
 
             UpdateSize();

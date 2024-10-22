@@ -72,7 +72,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Arguments.Selectors
             SelectorOption[] result = Array.Empty<SelectorOption>();
 
             int? parsedMinLimit = null;
-            bool parsedExistEntity = false;
+            bool? parsedExistEntity = null;
 
             if (reader.CanRead() && !char.IsWhiteSpace(reader.Peek()))
             {
@@ -102,8 +102,18 @@ namespace Rumi.BrigadierForLethalCompany.API.Arguments.Selectors
                         option.Parse(reader);
 
                         // 구문 분석된 모든 타입 옵션에서 엔티티가 포함되어있을 경우를 감지합니다
-                        if (existEntity && !parsedExistEntity && option is SelectorOptionType optionTypeInstance)
-                            parsedExistEntity |= optionTypeInstance.types.Any(static x => x != SelectorOptionType.playerType);
+                        if (existEntity && option is SelectorOptionType optionTypeInstance && (parsedExistEntity == null || !parsedExistEntity.Value))
+                        {
+                            if (optionTypeInstance.types.Any())
+                            {
+                                if (optionTypeInstance.types.Any(static x => x != SelectorOptionType.playerType))
+                                    parsedExistEntity = true;
+                                else
+                                    parsedExistEntity = false;
+                            }
+                            else if (optionTypeInstance.ignoreTypes.Any())
+                                parsedExistEntity = true;
+                        }
                         else if (option is SelectorOptionLimit optionLimit && optionLimit.limit != null) // 구문 분석된 모든 리미트 옵션에서의 최소 리미트를 가져옵니다
                         {
                             if (parsedMinLimit != null)
@@ -129,7 +139,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Arguments.Selectors
                 result = options.OrderBy(static x => x.sort).ToArray();
             }
 
-            if (existEntity && parsedExistEntity && onlyPlayer)
+            if (existEntity && onlyPlayer && (parsedExistEntity == null || parsedExistEntity.Value))
                 throw CommandSyntaxException.BuiltInExceptions.OnlyPlayer().CreateWithContext(reader);
             else if (!isLimitedType && limit && (parsedMinLimit == null || parsedMinLimit.Value > 1))
             {

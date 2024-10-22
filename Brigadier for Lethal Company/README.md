@@ -1,8 +1,11 @@
 # Brigadier for Lethal Company
 
-[Brigadier.NET]: https://github.com/AtomicBlom/Brigadier.NET 
+[Brigadier.NET]: https://github.com/AtomicBlom/Brigadier.NET
+
+This is a mod that ports [Brigadier.NET] to Lethal Company.
 
 [Brigadier.NET]을 리썰 컴퍼니에 포팅한 모드입니다
+
 
 ## 설명
 

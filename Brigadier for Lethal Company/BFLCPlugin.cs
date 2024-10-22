@@ -26,7 +26,7 @@ namespace Rumi.BrigadierForLethalCompany
         /// <br/><br/>
         /// 이 모드의 이름
         /// </summary>
-        public const string modName = "BetterCommandAPI";
+        public const string modName = "Brigadier for Lethal Company";
 
         /// <summary>
         /// Version of this mod

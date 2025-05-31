@@ -19,22 +19,21 @@ namespace Rumi.BrigadierForLethalCompany.API.Commands.Executes
                             .Then(static x =>
                                 x.Argument("pos", RuniArguments.Vector3())
                                     .Redirect(Execute.root, static x => x.Source.SetPosition(RuniArguments.GetVector3(x, "pos")))
+                            ).Then(static x =>
+                                x.Literal("as")
                                     .Then(static x =>
-                                        x.Literal("as")
-                                            .Then(static x =>
-                                                x.Argument("targets", RuniArguments.Selector(false, true))
-                                                    .Redirect(Execute.root, static x =>
-                                                    {
-                                                        var targets = RuniArguments.GetSelector(x, "targets").GetEntitys(x.Source);
-                                                        if (targets.CountIsOne())
-                                                        {
-                                                            var target = targets.First();
-                                                            return x.Source.SetPosition(target.transform.position);
-                                                        }
+                                        x.Argument("targets", RuniArguments.Selector(false, true))
+                                            .Redirect(Execute.root, static x =>
+                                            {
+                                                var targets = RuniArguments.GetSelector(x, "targets").GetEntitys(x.Source);
+                                                if (targets.CountIsOne())
+                                                {
+                                                    var target = targets.First();
+                                                    return x.Source.SetPosition(target.transform.position);
+                                                }
 
-                                                        return x.Source;
-                                                    })
-                                            )
+                                                return x.Source;
+                                            })
                                     )
                             )
                     )

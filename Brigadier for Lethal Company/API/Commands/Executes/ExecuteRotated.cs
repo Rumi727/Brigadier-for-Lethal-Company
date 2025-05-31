@@ -19,8 +19,9 @@ namespace Rumi.BrigadierForLethalCompany.API.Commands.Executes
                             .Then(static x =>
                                 x.Argument("rot", RuniArguments.Vector3())
                                     .Redirect(Execute.root, static x => x.Source.SetRotation(RuniArguments.GetVector3(x, "rot")))
-                                    .Then(static x =>
-                                        x.Literal("as")
+                            )
+                            .Then(static x =>
+                                x.Literal("as")
                                             .Then(static x =>
                                                 x.Argument("targets", RuniArguments.Selector(false, true))
                                                     .Redirect(Execute.root, static x =>
@@ -35,7 +36,6 @@ namespace Rumi.BrigadierForLethalCompany.API.Commands.Executes
                                                         return x.Source;
                                                     })
                                             )
-                                    )
                             )
                     )
             );

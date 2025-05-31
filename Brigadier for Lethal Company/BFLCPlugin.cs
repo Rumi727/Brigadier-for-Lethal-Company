@@ -33,7 +33,7 @@ namespace Rumi.BrigadierForLethalCompany
         /// <br/><br/>
         /// 이 모드의 버전
         /// </summary>
-        public const string modVersion = "1.0.1";
+        public const string modVersion = "1.0.2";
 
         internal static ManualLogSource? logger { get; private set; } = null;
 

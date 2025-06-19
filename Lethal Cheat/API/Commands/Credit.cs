@@ -8,13 +8,16 @@ namespace Rumi.LethalCheat.API.Commands
     public sealed class Credit : ServerCommand
     {
         public const string resultGetText = "The credit is {value}";
+        public const string resultAddText = "Add the credit to {value}";
         public const string resultSetText = "Set the credit to {value}";
 
         Credit() { }
 
         public override void Register()
         {
-            //credit <int:credit>
+            //credit get <int:credit>
+            //credit add <int:credit>
+            //credit set <int:credit>
             dispatcher.Register(static x =>
                 x.Literal("credit")
                     .Then(static x =>
@@ -26,6 +29,20 @@ namespace Rumi.LethalCheat.API.Commands
 
                                 return credit;
                             })
+                    )
+                    .Then(static x =>
+                        x.Literal("add")
+                            .Then(static x =>
+                                x.Argument("credit", RuniArguments.Integer(0))
+                                    .Executes(static x =>
+                                    {
+                                        int credit = RuniArguments.GetInteger(x, "credit");
+                                        LCheatNetworkHandler.SetCredit(LCheatNetworkHandler.GetCredit() + credit);
+
+                                        x.Source.SendCommandResult(resultAddText.Replace("{value}", credit.ToString()));
+                                        return credit;
+                                    })
+                            )
                     )
                     .Then(static x =>
                         x.Literal("set")

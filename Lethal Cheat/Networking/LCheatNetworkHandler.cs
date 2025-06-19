@@ -27,7 +27,15 @@ namespace Rumi.LethalCheat.Networking
                 return;
 
             if (entity is EnemyAI enemy)
+            {
+                enemy.SetEnemyOutside(enemy.transform.position.y >= -100);
                 enemy.agent.Warp(position);
+            }
+            /*else if (entity is GrabbableObject item)
+            {
+                item.startFallingPosition = position;
+                item.targetFloorPosition = position;
+            }*/
 
             entity.transform.position = position;
             instance.InternalTeleportEntityClientRpc(entity, position);
@@ -37,7 +45,20 @@ namespace Rumi.LethalCheat.Networking
         void InternalTeleportEntityClientRpc(NetworkBehaviourReference entityRef, Vector3 position)
         {
             if (entityRef.TryGet(out var entity))
+            {
+                if (entity is EnemyAI enemy)
+                {
+                    enemy.SetEnemyOutside(enemy.transform.position.y >= -100);
+                    enemy.agent.Warp(position);
+                }
+                /*else if (entity is GrabbableObject item)
+                {
+                    item.startFallingPosition = position;
+                    item.targetFloorPosition = position;
+                }*/
+
                 entity.transform.position = position;
+            }
         }
         #endregion
 
@@ -119,36 +140,35 @@ namespace Rumi.LethalCheat.Networking
 
 
         #region Summon Entity
-        public static void SummonEntity(EnemyType entity, Vector3 position)
+        public static void SummonEntity(EnemyType entityType, Vector3 position)
         {
             if (instance == null || !instance.IsServer)
                 return;
 
-            GameObject gameObject = Instantiate(entity.enemyPrefab, position, Quaternion.identity);
-            gameObject.GetComponentInChildren<NetworkObject>().Spawn(true);
+            if (!RoundManager.Instance.SpawnEnemyGameObject(position, 0, 0, entityType).TryGet(out var entity))
+                return;
 
-            EnemyAI enemyAI = gameObject.GetComponent<EnemyAI>();
-            RoundManager.Instance.SpawnedEnemies.Add(enemyAI);
+            entity.GetComponent<EnemyAI>().SetEnemyOutside(entity.transform.position.y >= -100);
         }
 
-        public static void SummonEntity(AnomalyType entity, Vector3 position)
+        public static void SummonEntity(AnomalyType entityType, Vector3 position)
         {
             if (instance == null || !instance.IsServer)
                 return;
 
-            GameObject gameObject = Instantiate(entity.anomalyPrefab, position, Quaternion.identity);
+            GameObject gameObject = Instantiate(entityType.anomalyPrefab, position, Quaternion.identity);
             gameObject.GetComponentInChildren<NetworkObject>().Spawn(true);
 
             Anomaly anomaly = gameObject.GetComponent<Anomaly>();
             RoundManager.Instance.SpawnedAnomalies.Add(anomaly);
         }
 
-        public static void SummonEntity(Item entity, Vector3 position, int price = 0)
+        public static void SummonEntity(Item entityType, Vector3 position, int price = 0)
         {
             if (instance == null || !instance.IsServer)
                 return;
 
-            GameObject gameObject = Instantiate(entity.spawnPrefab, position, Quaternion.Euler(entity.restingRotation));
+            GameObject gameObject = Instantiate(entityType.spawnPrefab, position, Quaternion.Euler(entityType.restingRotation));
 
             NetworkObject networkObject = gameObject.GetComponent<NetworkObject>();
             networkObject.Spawn(true);
@@ -202,7 +222,7 @@ namespace Rumi.LethalCheat.Networking
             timeInstance.currentDayTime = timeInstance.CalculatePlanetTime(level);
             timeInstance.hour = (int)(timeInstance.currentDayTime / timeInstance.lengthOfHours);
             timeInstance.previousHour = timeInstance.hour;
-            timeInstance.globalTimeAtEndOfDay = globalTime + (timeInstance.totalTime - timeInstance.currentDayTime) / level.DaySpeedMultiplier;
+            timeInstance.globalTimeAtEndOfDay = globalTime + ((timeInstance.totalTime - timeInstance.currentDayTime) / level.DaySpeedMultiplier);
             timeInstance.normalizedTimeOfDay = timeInstance.currentDayTime / timeInstance.totalTime;
 
             timeInstance.RefreshClockUI();
@@ -248,6 +268,29 @@ namespace Rumi.LethalCheat.Networking
             terminal.groupCredits = credit;
             terminal.SyncGroupCreditsServerRpc(terminal.groupCredits, terminal.numberOfItemsInDropship);
         }
+        #endregion
+
+
+
+        #region Game Speed
+        public static float GetGameSpeed()
+        {
+            if (instance == null || !instance.IsServer)
+                return 0;
+
+            return Time.timeScale;
+        }
+
+        public static void SetGameSpeed(float timeScale)
+        {
+            if (instance == null || !instance.IsServer)
+                return;
+
+            instance.InternalSetGameSpeedClientRpc(timeScale);
+        }
+
+        [ClientRpc]
+        void InternalSetGameSpeedClientRpc(float timeScale) => Time.timeScale = timeScale;
         #endregion
     }
 }

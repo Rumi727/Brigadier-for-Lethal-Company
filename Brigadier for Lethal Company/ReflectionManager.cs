@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -11,18 +12,17 @@ namespace Rumi.BrigadierForLethalCompany
         {
             assemblys = AppDomain.CurrentDomain.GetAssemblies();
 
-            List<Type> result = new List<Type>();
-            for (int assemblysIndex = 0; assemblysIndex < assemblys.Count; assemblysIndex++)
+            types = assemblys.SelectMany(x =>
             {
-                Type[] types = assemblys[assemblysIndex].GetTypes();
-                for (int typesIndex = 0; typesIndex < types.Length; typesIndex++)
+                try
                 {
-                    Type type = types[typesIndex];
-                    result.Add(type);
+                    return x.GetTypes();
                 }
-            }
-
-            types = result.ToArray();
+                catch (ReflectionTypeLoadException e)
+                {
+                    return e.Types.Where(x => x != null).ToArray();
+                }
+            }).ToArray();
         }
 
         /// <summary>

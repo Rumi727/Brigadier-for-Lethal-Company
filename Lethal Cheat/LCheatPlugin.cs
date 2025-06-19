@@ -12,7 +12,7 @@ namespace Rumi.LethalCheat
     {
         public const string modGuid = "Rumi.LethalCheat";
         public const string modName = "LethalCheat";
-        public const string modVersion = "1.0.0";
+        public const string modVersion = "1.0.1";
 
         internal static ManualLogSource? logger { get; private set; } = null;
 

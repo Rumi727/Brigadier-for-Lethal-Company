@@ -8,11 +8,11 @@ namespace Rumi.BrigadierForLethalCompany
 {
     static class ReflectionManager
     {
-        static ReflectionManager()
+        public static void Refresh()
         {
             assemblys = AppDomain.CurrentDomain.GetAssemblies();
 
-            types = assemblys.SelectMany(x =>
+            types = [..assemblys.SelectMany(x =>
             {
                 try
                 {
@@ -20,20 +20,24 @@ namespace Rumi.BrigadierForLethalCompany
                 }
                 catch (ReflectionTypeLoadException e)
                 {
-                    return e.Types.Where(x => x != null).ToArray();
+                    return [..e.Types.Where(x => x != null)];
                 }
-            }).ToArray();
+            })];
+
+            onRefresh?.Invoke();
         }
 
         /// <summary>
         /// All loaded assemblys
         /// </summary>
-        public static IReadOnlyList<Assembly> assemblys { get; }
+        public static IReadOnlyList<Assembly> assemblys { get; private set; } = [];
 
         /// <summary>
         /// All loaded types
         /// </summary>
-        public static IReadOnlyList<Type> types { get; }
+        public static IReadOnlyList<Type> types { get; private set; } = [];
+
+        public static event Action? onRefresh;
 
         /// <summary>type != typeof(T) &amp;&amp; typeof(T).IsAssignableFrom(type)</summary>
         public static bool IsSubtypeOf<T>(this Type type) => type != typeof(T) && typeof(T).IsAssignableFrom(type);

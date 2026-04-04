@@ -1,7 +1,8 @@
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using Rumi.LCNetworks;
+using Rumi.BrigadierForLethalCompany.API;
+using Unity.Netcode;
 
 namespace Rumi.BrigadierForLethalCompany
 {
@@ -11,7 +12,7 @@ namespace Rumi.BrigadierForLethalCompany
     /// Brigadier For Lethal Company 모드의 메인 클래스입니다
     /// </summary>
     [BepInPlugin(modGuid, modName, modVersion)]
-    [BepInDependency("Rumi.LCNetworkHandler")]
+    [BepInDependency(StaticNetcodeLib.StaticNetcodeLib.Guid, BepInDependency.DependencyFlags.HardDependency)]
     public sealed class BFLCPlugin : BaseUnityPlugin
     {
         /// <summary>
@@ -33,7 +34,7 @@ namespace Rumi.BrigadierForLethalCompany
         /// <br/><br/>
         /// 이 모드의 버전
         /// </summary>
-        public const string modVersion = "1.0.3";
+        public const string modVersion = "2.0.0";
 
         internal static ManualLogSource? logger { get; private set; } = null;
 
@@ -47,8 +48,20 @@ namespace Rumi.BrigadierForLethalCompany
 
             Debug.Log("Start loading plugin...");
 
-            LCNHPlugin.NetcodePatcher();
             BFLCPatches.Patch();
+
+            NetworkManager.OnInstantiated += x =>
+            {
+                ReflectionManager.Refresh();
+
+                x.OnServerStarted += () =>
+                {
+                    ServerCommand.Reset();
+                    ServerCommand.AllRegister();
+                };
+            };
+
+            ServerCommand.AllRegister();
 
             Debug.Log($"Plugin {modName} is loaded!");
         }

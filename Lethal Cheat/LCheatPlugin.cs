@@ -1,18 +1,17 @@
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using Rumi.LCNetworks;
 
 namespace Rumi.LethalCheat
 {
     [BepInPlugin(modGuid, modName, modVersion)]
-    [BepInDependency("Rumi.LCNetworkHandler")]
     [BepInDependency("Rumi.BrigadierForLethalCompany")]
+    [BepInDependency(StaticNetcodeLib.StaticNetcodeLib.Guid, BepInDependency.DependencyFlags.HardDependency)]
     public sealed class LCheatPlugin : BaseUnityPlugin
     {
         public const string modGuid = "Rumi.LethalCheat";
         public const string modName = "LethalCheat";
-        public const string modVersion = "1.0.1";
+        public const string modVersion = "2.0.0";
 
         internal static ManualLogSource? logger { get; private set; } = null;
 
@@ -25,8 +24,6 @@ namespace Rumi.LethalCheat
             logger = Logger;
 
             Debug.Log("Start loading plugin...");
-
-            LCNHPlugin.NetcodePatcher();
 
             Debug.Log($"Plugin {modName} is loaded!");
         }

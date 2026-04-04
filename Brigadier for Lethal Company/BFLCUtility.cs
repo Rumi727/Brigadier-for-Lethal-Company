@@ -1,13 +1,59 @@
 #pragma warning disable CS1591 // 공개된 형식 또는 멤버에 대한 XML 주석이 없습니다.
+using Brigadier.NET;
+using Brigadier.NET.Context;
+using Brigadier.NET.Suggestion;
+using Brigadier.NET.Tree;
 using GameNetcodeStuff;
+using Rumi.BrigadierForLethalCompany.API;
+using StaticNetcodeLib;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Unity.Netcode;
 
 namespace Rumi.BrigadierForLethalCompany
 {
+    [StaticNetcode]
     public static class BFLCUtility
     {
+        /// <summary>
+        /// 서버 측에서 특정 클라이언트로 커맨드 결과를 전송합니다
+        /// </summary>
+        public static void SendChat(string text, PlayerControllerB? targetPlayer)
+        {
+            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer || targetPlayer == null)
+                return;
+
+            InternalChatClientRpc(text, targetPlayer);
+        }
+
+        [ClientRpc]
+        static void InternalChatClientRpc(string text, NetworkBehaviourReference networkBehaviourReference)
+        {
+            if (networkBehaviourReference.TryGet(out PlayerControllerB player) && player == GameNetworkManager.Instance.localPlayerController)
+                AddChatClient(text);
+        }
+
+        /// <summary>
+        /// 서버 측에서 특정 클라이언트를 제외한 모든 클라이언트로 채팅을 전송합니다
+        /// </summary>
+        public static void SendGlobalChat(string text, PlayerControllerB? targetPlayer)
+        {
+            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer)
+                return;
+
+            InternalSendGlobalChatClientRpc(text, targetPlayer != null ? targetPlayer : new NetworkBehaviourReference());
+        }
+
+        [ClientRpc]
+        static void InternalSendGlobalChatClientRpc(string text, NetworkBehaviourReference networkBehaviourReference)
+        {
+            if (networkBehaviourReference.TryGet(out PlayerControllerB player) && player == GameNetworkManager.Instance.localPlayerController)
+                return;
+
+            AddChatClient(text);
+        }
+
         public static void AddChatClient(string text)
         {
             HUDManager x = HUDManager.Instance;
@@ -45,6 +91,51 @@ namespace Rumi.BrigadierForLethalCompany
                 return $"{entitys.Count()} entities";
             else
                 return $"{count} entities";
+        }
+
+        /// <summary>
+        /// 명령어 입력 값에 해당하는 디스패처의 인틀리샌스 텍스트를 가져옵니다
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="dispatcher">가져올 디스패처</param>
+        /// <param name="input">입력 값</param>
+        /// <param name="source">현재 소스</param>
+        /// <param name="cursor">현재 입력 커서</param>
+        /// <returns></returns>
+        public static async Task<NetworkIntelliSenseArray> GetIntelliSenseText<TSource>(this CommandDispatcher<TSource> dispatcher, string input, TSource source, int cursor)
+        {
+            if (cursor < 0 || cursor > input.Length)
+                return new NetworkIntelliSenseArray();
+
+            StringReader stringReader = new StringReader(input);
+            ParseResults<TSource> parseResults = dispatcher.Parse(stringReader, source);
+
+            // 자동 완성
+            {
+                List<Suggestion> suggestions = (await dispatcher.GetCompletionSuggestions(parseResults, cursor)).List;
+                if (suggestions.Count > 0)
+                    return new NetworkIntelliSenseArray(NetworkIntelliSenseArray.Type.suggestion, [.. suggestions.Select(x => (NetworkIntelliSenseArray.Suggestion)x)]);
+            }
+
+            // 예외
+            {
+                var exceptions = parseResults.Exceptions.Values;
+                if (exceptions.Count > 0)
+                    return new NetworkIntelliSenseArray(NetworkIntelliSenseArray.Type.exception, [exceptions.Last().Message]);
+            }
+
+            // 설명
+            {
+                SuggestionContext<TSource> context = parseResults.Context.FindSuggestionContext(cursor);
+                if (context.Parent.Children.Any(x => x is ArgumentCommandNode<TSource>))
+                {
+                    ICollection<string> usages = dispatcher.GetSmartUsage(context.Parent, source).Values;
+                    if (usages.Count > 0)
+                        return new NetworkIntelliSenseArray(NetworkIntelliSenseArray.Type.usage, [.. usages.Select(x => (NetworkIntelliSenseArray.Suggestion)x)]);
+                }
+            }
+
+            return new NetworkIntelliSenseArray();
         }
     }
 }

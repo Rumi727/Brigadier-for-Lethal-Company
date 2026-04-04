@@ -14,17 +14,17 @@ namespace Rumi.BrigadierForLethalCompany.API
         public static SimpleCommandExceptionType PlayerToMany(this IBuiltInExceptionProvider e) => new SimpleCommandExceptionType(new LiteralMessage("Only one player is allowed, but the provided selector allows more than one"));
         public static SimpleCommandExceptionType OnlyPlayer(this IBuiltInExceptionProvider e) => new SimpleCommandExceptionType(new LiteralMessage("Only players may be affected by this command, but the provided selector includes entities"));
 
-        public static DynamicCommandExceptionType SelectorUnkown(this IBuiltInExceptionProvider e) => new DynamicCommandExceptionType(static x => new LiteralMessage($"Unknown selector type '{x}'"));
-        public static DynamicCommandExceptionType SelectorOptionsUnknown(this IBuiltInExceptionProvider e) => new DynamicCommandExceptionType(static x => new LiteralMessage($"Unknown option '{x}'"));
+        public static DynamicCommandExceptionType SelectorUnkown(this IBuiltInExceptionProvider e) => new DynamicCommandExceptionType(x => new LiteralMessage($"Unknown selector type '{x}'"));
+        public static DynamicCommandExceptionType SelectorOptionsUnknown(this IBuiltInExceptionProvider e) => new DynamicCommandExceptionType(x => new LiteralMessage($"Unknown option '{x}'"));
         public static SimpleCommandExceptionType SelectorOptionsUnterminated(this IBuiltInExceptionProvider e) => new SimpleCommandExceptionType(new LiteralMessage("Expected end of options"));
-        public static DynamicCommandExceptionType SelectorOptionsValueless(this IBuiltInExceptionProvider e) => new(static x => new LiteralMessage($"Expected value for option '{x}'"));
+        public static DynamicCommandExceptionType SelectorOptionsValueless(this IBuiltInExceptionProvider e) => new(x => new LiteralMessage($"Expected value for option '{x}'"));
 
         public static SimpleCommandExceptionType RangeEmpty(this IBuiltInExceptionProvider e) => new(new LiteralMessage("Expected value or range of values"));
 
-        public static DynamicCommandExceptionType InvalidSort(this IBuiltInExceptionProvider e) => new(static x => new LiteralMessage($"Invalid or unknown sort type '{x}'"));
+        public static DynamicCommandExceptionType InvalidSort(this IBuiltInExceptionProvider e) => new(x => new LiteralMessage($"Invalid or unknown sort type '{x}'"));
 
-        public static DynamicCommandExceptionType InvalidEntityType(this IBuiltInExceptionProvider e) => new(static x => new LiteralMessage($"Invalid or unknown entity type '{x}'"));
-        public static DynamicCommandExceptionType InvalidItemType(this IBuiltInExceptionProvider e) => new(static x => new LiteralMessage($"Unknown item '{x}'"));
+        public static DynamicCommandExceptionType InvalidEntityType(this IBuiltInExceptionProvider e) => new(x => new LiteralMessage($"Invalid or unknown entity type '{x}'"));
+        public static DynamicCommandExceptionType InvalidItemType(this IBuiltInExceptionProvider e) => new(x => new LiteralMessage($"Unknown item '{x}'"));
 #pragma warning restore IDE0060 // 사용하지 않는 매개 변수를 제거하세요.
     }
 }

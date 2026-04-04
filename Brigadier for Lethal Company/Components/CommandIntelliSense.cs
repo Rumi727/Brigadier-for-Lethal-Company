@@ -1,5 +1,4 @@
 using Rumi.BrigadierForLethalCompany.API;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,17 +15,13 @@ namespace Rumi.BrigadierForLethalCompany.Components
     {
         public static TMP_FontAsset? font => HUDManager.Instance.chatText.font;
 
-        public RectTransform rectTransform => _rectTransform ??= (RectTransform)transform;
-        RectTransform? _rectTransform;
+        public RectTransform rectTransform => field ??= (RectTransform)transform;
 
-        public Image bgImage => _bgImage ??= GetComponent<Image>();
-        Image? _bgImage;
+        public Image bgImage => field ??= GetComponent<Image>();
 
-        public VerticalLayoutGroup layout => _layout ??= GetComponent<VerticalLayoutGroup>();
-        VerticalLayoutGroup? _layout;
+        public VerticalLayoutGroup layout => field ??= GetComponent<VerticalLayoutGroup>();
 
-        public ContentSizeFitter sizeFitter => _contentSizeFitter ??= GetComponent<ContentSizeFitter>();
-        ContentSizeFitter? _contentSizeFitter;
+        public ContentSizeFitter sizeFitter => field ??= GetComponent<ContentSizeFitter>();
 
         public HUDManager? hudManager { get; private set; }
         public TMP_InputField? chatField => hudManager != null ? hudManager.chatTextField : null;
@@ -50,6 +45,43 @@ namespace Rumi.BrigadierForLethalCompany.Components
             }
         }
 
+        void OnGUI()
+        {
+            if (chatField == null || text == null || !Event.current.isKey || text.intelliSenseArray.length == 0)
+                return;
+
+            if (Event.current.keyCode == KeyCode.UpArrow)
+            {
+                if (Event.current.type == EventType.KeyDown)
+                    text.selectedLine--;
+
+                Event.current.Use();
+            }
+            else if (Event.current.keyCode == KeyCode.DownArrow)
+            {
+                if (Event.current.type == EventType.KeyDown)
+                    text.selectedLine++;
+
+                Event.current.Use();
+            }
+            else if (Event.current.keyCode == KeyCode.Tab && text.intelliSenseArray.type == NetworkIntelliSenseArray.Type.suggestion)
+            {
+                if (Event.current.type == EventType.KeyDown)
+                {
+                    NetworkIntelliSenseArray.Suggestion suggestion = text.intelliSenseArray[text.selectedLine];
+
+                    int suggestionEnd = suggestion.range.end;
+                    int suggestionLength = suggestionEnd - suggestion.range.start;
+                    string insertText = suggestion.text.Substring(suggestionLength);
+
+                    chatField.text = chatField.text.Insert(suggestionEnd + 1, insertText);
+                    chatField.stringPosition += insertText.Length;
+                }
+
+                Event.current.Use();
+            }
+        }
+
         /// <summary>
         /// Update intelliSense
         /// <br/><br/>
@@ -60,42 +92,34 @@ namespace Rumi.BrigadierForLethalCompany.Components
         /// <br/><br/>
         /// 업데이트할 입력값입니다
         /// </param>
-        public async void UpdateIntelliSenseText(string input)
+        public void UpdateIntelliSenseText(string input)
         {
             if (text == null || inputBgImage == null || chatField == null)
                 return;
 
             bool isCommand = input.StartsWith("/");
             if (isCommand && hudManager != null)
-                text.text.text = await ServerCommand.dispatcher.GetIntelliSenseText(input.Remove(0, 1), new ServerCommandSource(hudManager.localPlayer), chatField.caretPosition - 1);
+            {
+                ServerCommand.RequestIntelliSense(input.Remove(0, 1), chatField.caretPosition - 1, x =>
+                {
+                    text.intelliSenseArray = x;
+                    bgImage.color = x.length > 0 ? Color.black : Color.clear;
+                });
+            }
             else
-                text.text.text = string.Empty;
+            {
+                ServerCommand.CancelRequestIntelliSense();
 
-            bgImage.color = string.IsNullOrEmpty(text.text.text) ? Color.clear : Color.black;
+                text.intelliSenseArray = new();
+                bgImage.color = Color.clear;
+            }
+
             inputBgImage.color = isCommand ? Color.black : Color.clear;
 
             chatField.caretColor = isCommand ? Color.white : orgCaretColor;
             chatField.textComponent.color = isCommand ? Color.white : orgTextColor;
 
             chatField.richText = !isCommand;
-
-            text.text.fontSize = 14 * Mathf.Clamp(30f / text.text.text.Count(static x => x == '\n'), 0, 1);
-
-            UpdateSize();
-        }
-
-        /// <summary>
-        /// Update the size of the text
-        /// <br/><br/>
-        /// 텍스트의 크기를 업데이트합니다
-        /// </summary>
-        public void UpdateSize()
-        {
-            if (text == null)
-                return;
-
-            text.sizeFitter.SetLayoutHorizontal();
-            text.sizeFitter.SetLayoutVertical();
         }
 
         public static CommandIntelliSense Create(HUDManager hudManager)
@@ -157,9 +181,6 @@ namespace Rumi.BrigadierForLethalCompany.Components
                 obj.hudManager = hudManager;
                 obj.text = CommandIntelliSenseText.Create(obj);
             }
-
-            // Layout Calc
-            obj.UpdateSize();
 
             return obj;
         }

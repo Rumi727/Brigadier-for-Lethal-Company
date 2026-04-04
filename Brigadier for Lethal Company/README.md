@@ -62,11 +62,11 @@ Example : ``@e[limit=1]`` Get the first entity among all entities
 ## Add custom commands
 
 If you inherit [ServerCommand](https://github.com/Rumi727/Brigadier-for-Lethal-Company/blob/main/Brigadier%20for%20Lethal%20Company/API/ServerCommand.cs)\
-An instance is created at the [BFLCNetworkHandler.OnNetworkSpawn](https://github.com/Rumi727/Brigadier-for-Lethal-Company/blob/main/Brigadier%20for%20Lethal%20Company/Networking/BFLCNetworkHandler.cs) stage and the Register method is automatically called.
+An instance is created at the NetworkManager.OnInstantiated stage and the Register method is automatically called.
 
 You can register the node to ServerCommand.dispatcher in the Register method.
 
-The argument type can be accessed through the [RuniArguments](https://github.com/Rumi727/Brigadier-for-Lethal-Company/blob/main/Brigadier%20for%20Lethal%20Company/API/Arguments/RuniArguments.cs) class.
+The argument type can be accessed through the [LethalArguments](https://github.com/Rumi727/Brigadier-for-Lethal-Company/blob/main/Brigadier%20for%20Lethal%20Company/API/LethalArguments.cs) class.
 
 If you want to get the current command's position or rotation value,\
 you can refer to the values ​​stored in [Command Source](https://github.com/Rumi727/Brigadier-for-Lethal-Company/blob/main/Brigadier%20for%20Lethal%20Company/API/ServerCommandSource.cs).
@@ -75,7 +75,3 @@ For detailed usage, please refer to the [Brigadier.NET] document.
 Although it's Java, the [Fabric](https://fabricmc.net/wiki/tutorial:commands) documentation might also help...lol
 
 The ThunderStore release also includes XML documentation, so you may find that helpful as well.
-
-### Caution!
-
-Due to limitations in my coding skills, mods that add server-side custom commands require the mod to be installed on the client as well for the added commands to appear in the list!

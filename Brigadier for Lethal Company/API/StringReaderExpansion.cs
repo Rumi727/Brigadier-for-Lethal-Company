@@ -1,6 +1,6 @@
 using Brigadier.NET;
 using Brigadier.NET.Exceptions;
-using Rumi.BrigadierForLethalCompany.API.Arguments;
+using Rumi.BrigadierForLethalCompany.API.ArgumentTypes;
 using System;
 
 namespace Rumi.BrigadierForLethalCompany.API

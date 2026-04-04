@@ -1,6 +1,6 @@
 using HarmonyLib;
+using Rumi.BrigadierForLethalCompany.API;
 using Rumi.BrigadierForLethalCompany.Components;
-using Rumi.BrigadierForLethalCompany.Networking;
 using UnityEngine.EventSystems;
 
 namespace Rumi.BrigadierForLethalCompany
@@ -48,7 +48,7 @@ namespace Rumi.BrigadierForLethalCompany
 
             text = text.Remove(0, 1);
 
-            BFLCNetworkHandler.ExecuteCommand(text);
+            ServerCommand.ExecuteCommand(text);
 
             __instance.chatTextField.text = "";
             __instance.localPlayer.isTypingChat = false;

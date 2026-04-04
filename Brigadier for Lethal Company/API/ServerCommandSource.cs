@@ -1,5 +1,4 @@
 using GameNetcodeStuff;
-using Rumi.BrigadierForLethalCompany.Networking;
 using System;
 using Unity.Netcode;
 using UnityEngine;
@@ -64,10 +63,10 @@ namespace Rumi.BrigadierForLethalCompany.API
             if (sender == null)
                 return;
 
-            BFLCNetworkHandler.AddChat($"<color=white><size=10>{text}</size></color>", player);
+            BFLCUtility.SendChat($"<color=white><size=10>{text}</size></color>", player);
 
             if (sendGlobal)
-                BFLCNetworkHandler.AddGlobalChat($"<color=#aaaaaa><size=10><i>[{sender.GetEntityName()}] {text}</i></size></color>", player);
+                BFLCUtility.SendGlobalChat($"<color=#aaaaaa><size=10><i>[{sender.GetEntityName()}] {text}</i></size></color>", player);
         }
 
         /// <summary>커맨드 결과를 채팅에 전송합니다</summary>
@@ -76,7 +75,7 @@ namespace Rumi.BrigadierForLethalCompany.API
             if (firstPlayer == null)
                 return;
 
-            BFLCNetworkHandler.AddChat($"<color=#ff5555><size=10>{e.Message}</size></color>", firstPlayer);
+            BFLCUtility.SendChat($"<color=#ff5555><size=10>{e.Message}</size></color>", firstPlayer);
         }
 
         /// <summary>

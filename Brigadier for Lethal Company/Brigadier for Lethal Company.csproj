@@ -4,7 +4,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Rumi.BrigadierForLethalCompany</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>14.0</LangVersion>
     <Nullable>enable</Nullable>
     <DelaySign>False</DelaySign>
     <PackageOutputPath />
@@ -18,7 +18,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Brigadier.NET" Version="1.2.13" />
+    <PackageReference Include="Brigadier.NET" Version="2.0.15-beta" />
+    <PackageReference Include="Xilophor.StaticNetcodeLib" Version="1.2.0" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
@@ -33,8 +34,8 @@
     <Reference Include="LethalConfig">
       <HintPath>dlls\LethalConfig.dll</HintPath>
     </Reference>
-    <Reference Include="Rumi's Lethal Network Handler">
-      <HintPath>dlls\Rumi's Lethal Network Handler.dll</HintPath>
+    <Reference Include="Unity.Collections">
+      <HintPath>dlls\Unity.Collections.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Netcode.Runtime">
       <HintPath>dlls\Unity.Netcode.Runtime.dll</HintPath>
@@ -48,6 +49,9 @@
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>dlls\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>dlls\UnityEngine.IMGUIModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>dlls\UnityEngine.UI.dll</HintPath>
     </Reference>
@@ -55,9 +59,6 @@
       <HintPath>dlls\UnityEngine.UIModule.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <Target Name="NetcodePatch" AfterTargets="PostBuildEvent">
-	<Exec Command="netcode-patch &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
-  </Target>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="IF $(ConfigurationName)==Debug call postbuild-debug.bat &quot;$(OutputPath)&quot; &quot;$(AssemblyName)&quot;&#xD;&#xA;IF $(ConfigurationName)==Release call postbuild.bat &quot;$(OutputPath)&quot; &quot;$(AssemblyName)&quot;" />
   </Target>

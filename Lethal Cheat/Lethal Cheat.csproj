@@ -15,6 +15,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Xilophor.StaticNetcodeLib" Version="1.2.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Brigadier for Lethal Company\Brigadier for Lethal Company.csproj" />
@@ -32,9 +33,6 @@
     <Reference Include="LethalConfig">
       <HintPath>dlls\LethalConfig.dll</HintPath>
     </Reference>
-    <Reference Include="Rumi's Lethal Network Handler">
-      <HintPath>dlls\Rumi's Lethal Network Handler.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.Netcode.Runtime">
       <HintPath>dlls\Unity.Netcode.Runtime.dll</HintPath>
     </Reference>
@@ -47,16 +45,22 @@
     <Reference Include="UnityEngine.AIModule">
       <HintPath>dlls\UnityEngine.AIModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>dlls\UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule">
+      <HintPath>dlls\UnityEngine.AudioModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>dlls\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>dlls\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>dlls\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <Target Name="NetcodePatch" AfterTargets="PostBuildEvent">
-	<Exec Command="netcode-patch &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
-  </Target>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="IF $(ConfigurationName)==Debug call postbuild-debug.bat &quot;$(OutputPath)&quot; &quot;$(AssemblyName)&quot;&#xD;&#xA;IF $(ConfigurationName)==Release call postbuild.bat &quot;$(OutputPath)&quot; &quot;$(AssemblyName)&quot;" />
   </Target>

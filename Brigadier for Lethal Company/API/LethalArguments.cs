@@ -8,9 +8,6 @@ using UnityEngine;
 #pragma warning disable CS1591 // 공개된 형식 또는 멤버에 대한 XML 주석이 없습니다.
 namespace Rumi.BrigadierForLethalCompany.API
 {
-    /// <summary>
-    /// <see cref="Brigadier.NET.Arguments"/> 클래스를 대체합니다
-    /// </summary>
     public static class LethalArguments
     {
         public static CoordinatesArgumentType<T> Coordinates<T>(T? min, T? max, Func<IStringReader, T> readFunc, int argumentCount, int localArgumentCount) where T : struct, IComparable<T> => new CoordinatesArgumentType<T>(min, max, readFunc, argumentCount, localArgumentCount);

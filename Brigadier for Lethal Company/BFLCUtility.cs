@@ -54,6 +54,9 @@ namespace Rumi.BrigadierForLethalCompany
             AddChatClient(text);
         }
 
+        /// <summary>
+        /// 클라이언트에 "하얀색" 채팅을 추가합니다
+        /// </summary>
         public static void AddChatClient(string text)
         {
             HUDManager x = HUDManager.Instance;

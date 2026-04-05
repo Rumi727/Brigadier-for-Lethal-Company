@@ -1,6 +1,7 @@
 using Brigadier.NET;
 using Brigadier.NET.Builder;
 using Rumi.BrigadierForLethalCompany.API;
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -146,7 +147,30 @@ namespace Rumi.LethalCheat.API.Commands
             if (!RoundManager.Instance.SpawnEnemyGameObject(position, 0, 0, entityType).TryGet(out var entity))
                 return;
 
-            entity.GetComponent<EnemyAI>().SetEnemyOutside(entity.transform.position.y >= -100);
+            entityType.numberSpawned++;
+            entityType.hasSpawnedAtLeastOne = true;
+
+            bool isOutside = entity.transform.position.y >= -100;
+
+            EnemyAI enemyAI = entity.GetComponent<EnemyAI>();
+            enemyAI.StartCoroutine(SummonEntityCoroutine(enemyAI, isOutside));
+
+            InternalSummonEnemyClientRpc(enemyAI, isOutside);
+        }
+
+        [ClientRpc]
+        static void InternalSummonEnemyClientRpc(NetworkBehaviourReference entityRef, bool isOutside)
+        {
+            if (!entityRef.TryGet(out EnemyAI enemyAI))
+                return;
+
+            enemyAI.StartCoroutine(SummonEntityCoroutine(enemyAI, isOutside));
+        }
+
+        static IEnumerator SummonEntityCoroutine(EnemyAI enemyAI, bool isOutside)
+        {
+            yield return null;
+            enemyAI.SetEnemyOutside(isOutside);
         }
 
         public static void SummonEntity(AnomalyType entityType, Vector3 position)
@@ -171,11 +195,11 @@ namespace Rumi.LethalCheat.API.Commands
             NetworkObject networkObject = gameObject.GetComponent<NetworkObject>();
             networkObject.Spawn(true);
 
-            InternalSummonEntityClientRpc(networkObject, price);
+            InternalSummonItemClientRpc(networkObject, price);
         }
 
         [ClientRpc]
-        static void InternalSummonEntityClientRpc(NetworkObjectReference entityRef, int price)
+        static void InternalSummonItemClientRpc(NetworkObjectReference entityRef, int price)
         {
             if (!entityRef.TryGet(out var entity))
                 return;

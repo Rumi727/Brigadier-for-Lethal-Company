@@ -9,7 +9,7 @@ namespace Rumi.LethalCheat.API.Commands
 {
     public sealed class KillCommand : ServerCommand
     {
-        public const string resultText = "Killed {targets}";
+        public const string resultText = "Killed {0}";
 
         KillCommand() { }
 
@@ -19,12 +19,13 @@ namespace Rumi.LethalCheat.API.Commands
             //kill <Entity:targets>
             dispatcher.Register(x =>
                 x.Literal("kill")
+                    .Requires(x => x.isOp)
                     .Executes(x =>
                     {
                         if (x.Source.sender != null)
                         {
                             KillEntity(x.Source.sender);
-                            x.Source.SendCommandResult(resultText.Replace("{targets}", x.Source.sender.GetEntityName()));
+                            x.Source.SendCommandResult(string.Format(resultText, x.Source.sender.GetEntityName()));
 
                             return 1;
                         }
@@ -54,7 +55,7 @@ namespace Rumi.LethalCheat.API.Commands
                                     }
                                 }
 
-                                x.Source.SendCommandResult(resultText.Replace("{targets}", targets.GetEntityName(count)));
+                                x.Source.SendCommandResult(string.Format(resultText, targets.GetEntityName(count)));
 
                                 return count;
                             })

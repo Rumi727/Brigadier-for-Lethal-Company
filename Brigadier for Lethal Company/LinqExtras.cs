@@ -84,8 +84,14 @@ namespace System.Linq
         /// </summary>
         public static IEnumerable<IEnumerable<T>> Split<T>(this T[] arr, int size)
         {
-            for (var i = 0; i < arr.Length / size + 1; i++)
+            for (var i = 0; i < (arr.Length / size) + 1; i++)
                 yield return arr.Skip(i * size).Take(size);
         }
+
+        /// <summary>
+        /// null 값인 아이템을 필터링합니다.<br/>
+        /// <see cref="object.Equals(object)"/>를 한번 더 사용하기 때문에, Fake Null도 감지합니다.
+        /// </summary>
+        public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> source) => source.Where(x => x != null && !x.Equals(null))!;
     }
 }

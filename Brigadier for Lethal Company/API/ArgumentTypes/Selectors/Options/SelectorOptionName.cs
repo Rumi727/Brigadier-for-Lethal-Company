@@ -11,10 +11,10 @@ namespace Rumi.BrigadierForLethalCompany.API.ArgumentTypes.Selectors.Options
     public sealed class SelectorOptionName : SelectorOption
     {
         public IReadOnlyList<string> names => _names;
-        readonly List<string> _names = new List<string>();
+        readonly List<string> _names = [];
 
         public IReadOnlyList<string> ignoreNames => _ignoreNames;
-        readonly List<string> _ignoreNames = new List<string>();
+        readonly List<string> _ignoreNames = [];
 
         public override void Parse(IStringReader reader)
         {

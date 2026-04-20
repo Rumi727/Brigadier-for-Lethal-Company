@@ -8,8 +8,8 @@ namespace Rumi.LethalCheat.API.Commands
 {
     public sealed class GameSpeedCommand : ServerCommand
     {
-        public const string resultGetText = "The game speed is {value}";
-        public const string resultSetText = "Set the game speed to {value}";
+        public const string resultGetText = "The game speed is {0}";
+        public const string resultSetText = "Set the game speed to {0}";
 
         GameSpeedCommand() { }
 
@@ -19,12 +19,13 @@ namespace Rumi.LethalCheat.API.Commands
             //gamespeed set <float:time>
             dispatcher.Register(x =>
                 x.Literal("gamespeed")
+                    .Requires(x => x.isOp)
                     .Then(x =>
                         x.Literal("get")
                             .Executes(x =>
                             {
                                 float timescale = GetGameSpeed();
-                                x.Source.SendCommandResult(resultGetText.Replace("{value}", timescale.ToString()), false);
+                                x.Source.SendCommandResult(string.Format(resultGetText, timescale), false);
 
                                 return Mathf.RoundToInt(GetGameSpeed() * 100);
                             })
@@ -38,7 +39,7 @@ namespace Rumi.LethalCheat.API.Commands
                                         float timescale = Arguments.GetFloat(x, "timescale");
                                         SetGameSpeed(timescale);
 
-                                        x.Source.SendCommandResult(resultSetText.Replace("{value}", timescale.ToString()));
+                                        x.Source.SendCommandResult(string.Format(resultSetText, timescale));
                                         return Mathf.RoundToInt(timescale * 100);
                                     })
                             )

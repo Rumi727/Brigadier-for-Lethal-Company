@@ -9,7 +9,7 @@ namespace Rumi.LethalCheat.API.Commands
 {
     public sealed class SummonCommand : ServerCommand
     {
-        public const string resultText = "Summoned new {name}";
+        public const string resultText = "Summoned new {0}";
 
         SummonCommand() { }
 
@@ -25,6 +25,7 @@ namespace Rumi.LethalCheat.API.Commands
             //summon item <Item:item> <Vector3:location> <int:price>
             dispatcher.Register(x =>
                 x.Literal("summon")
+                    .Requires(x => x.isOp)
                     .Then(x =>
                         x.Literal("enemy")
                             .Then(x =>
@@ -34,7 +35,7 @@ namespace Rumi.LethalCheat.API.Commands
                                         EnemyType entity = LethalArguments.GetEnemyType(x, "entity");
                                         SummonEntity(entity, x.Source.position);
 
-                                        x.Source.SendCommandResult(resultText.Replace("{name}", entity.enemyName));
+                                        x.Source.SendCommandResult(string.Format(resultText, entity.enemyName));
 
                                         return 1;
                                     })
@@ -46,7 +47,7 @@ namespace Rumi.LethalCheat.API.Commands
                                                 Vector3 position = LethalArguments.GetVector3(x, "location");
 
                                                 SummonEntity(entity, position);
-                                                x.Source.SendCommandResult(resultText.Replace("{name}", entity.enemyName));
+                                                x.Source.SendCommandResult(string.Format(resultText, entity.enemyName));
 
                                                 return 1;
                                             })
@@ -62,7 +63,7 @@ namespace Rumi.LethalCheat.API.Commands
                                         AnomalyType entity = LethalArguments.GetAnomalyType(x, "entity");
                                         SummonEntity(entity, x.Source.position);
 
-                                        x.Source.SendCommandResult(resultText.Replace("{name}", entity.anomalyName));
+                                        x.Source.SendCommandResult(string.Format(resultText, entity.anomalyName));
 
                                         return 1;
                                     })
@@ -74,7 +75,7 @@ namespace Rumi.LethalCheat.API.Commands
                                                 Vector3 position = LethalArguments.GetVector3(x, "location");
 
                                                 SummonEntity(entity, position);
-                                                x.Source.SendCommandResult(resultText.Replace("{name}", entity.anomalyName));
+                                                x.Source.SendCommandResult(string.Format(resultText, entity.anomalyName));
 
                                                 return 1;
                                             })
@@ -90,7 +91,7 @@ namespace Rumi.LethalCheat.API.Commands
                                         Item entity = LethalArguments.GetItemType(x, "item");
                                         SummonEntity(entity, x.Source.position);
 
-                                        x.Source.SendCommandResult(resultText.Replace("{name}", entity.itemName));
+                                        x.Source.SendCommandResult(string.Format(resultText, entity.itemName));
 
                                         return 1;
                                     })
@@ -102,7 +103,7 @@ namespace Rumi.LethalCheat.API.Commands
                                                 int price = Arguments.GetInteger(x, "price");
 
                                                 SummonEntity(entity, x.Source.position, price);
-                                                x.Source.SendCommandResult(resultText.Replace("{name}", entity.itemName));
+                                                x.Source.SendCommandResult(string.Format(resultText, entity.itemName));
 
                                                 return 1;
                                             })
@@ -115,7 +116,7 @@ namespace Rumi.LethalCheat.API.Commands
                                                 Vector3 position = LethalArguments.GetVector3(x, "location");
 
                                                 SummonEntity(entity, position);
-                                                x.Source.SendCommandResult(resultText.Replace("{name}", entity.itemName));
+                                                x.Source.SendCommandResult(string.Format(resultText, entity.itemName));
 
                                                 return 1;
                                             })
@@ -128,7 +129,7 @@ namespace Rumi.LethalCheat.API.Commands
                                                         int price = Arguments.GetInteger(x, "price");
 
                                                         SummonEntity(entity, position, price);
-                                                        x.Source.SendCommandResult(resultText.Replace("{name}", entity.itemName));
+                                                        x.Source.SendCommandResult(string.Format(resultText, entity.itemName));
 
                                                         return 1;
                                                     })

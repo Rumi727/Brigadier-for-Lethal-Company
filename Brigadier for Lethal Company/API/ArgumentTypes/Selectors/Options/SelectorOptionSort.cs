@@ -34,7 +34,7 @@ namespace Rumi.BrigadierForLethalCompany.API.ArgumentTypes.Selectors.Options
             else if (type == SelectorOptionSorttype.random)
                 return entitys.Shuffle();
 
-            return Enumerable.Empty<NetworkBehaviour>();
+            return [];
         }
     }
 }

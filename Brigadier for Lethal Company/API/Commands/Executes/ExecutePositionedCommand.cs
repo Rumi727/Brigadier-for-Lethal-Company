@@ -13,6 +13,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Commands.Executes
             //execute positioned <Vector3:pos> -> execute
             dispatcher.Register(x =>
                 x.Literal("execute")
+                    .Requires(x => x.isOp)
                     .Then(x =>
                         x.Literal("positioned")
                             .Then(x =>

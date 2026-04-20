@@ -13,6 +13,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Commands.Executes
             //execute as -> execute
             dispatcher.Register(x =>
                 x.Literal("execute")
+                    .Requires(x => x.isOp)
                     .Then(x =>
                         x.Literal("as")
                             .Then(x =>

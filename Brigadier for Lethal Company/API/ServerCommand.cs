@@ -4,14 +4,15 @@ using Brigadier.NET.Tree;
 using GameNetcodeStuff;
 using StaticNetcodeLib;
 using System;
+using System.Collections.Generic;
 using Unity.Netcode;
 
 namespace Rumi.BrigadierForLethalCompany.API
 {
     /// <summary>
-    /// Classes that inherit this class are instantiated during the <see cref="NetworkManager.OnInstantiated"/> phase, and their <see cref="Register"/> method is automatically called.
+    /// Classes that inherit this class are instantiated during the <see cref="NetworkManager.OnServerStarted"/> phase, and their <see cref="Register"/> method is automatically called.
     /// <br/><br/>
-    /// 이 클래스를 상속한 클래스는 <see cref="NetworkManager.OnInstantiated"/> 단계에서 인스턴스가 생성되며, <see cref="Register"/> 메소드가 자동으로 호출됩니다.
+    /// 이 클래스를 상속한 클래스는 <see cref="NetworkManager.OnServerStarted"/> 단계에서 인스턴스가 생성되며, <see cref="Register"/> 메소드가 자동으로 호출됩니다.
     /// </summary>
     [StaticNetcode]
     public abstract class ServerCommand
@@ -34,6 +35,8 @@ namespace Rumi.BrigadierForLethalCompany.API
         /// </summary>
         public static CommandDispatcher<ServerCommandSource> dispatcher { get; private set; } = new CommandDispatcher<ServerCommandSource>();
 
+        static HashSet<ulong> opLists = [];
+
         /// <summary>
         /// Methods automatically called during registration phase
         /// <br/><br/>
@@ -55,6 +58,8 @@ namespace Rumi.BrigadierForLethalCompany.API
         /// </summary>
         public static void AllRegister()
         {
+            opLists.Clear();
+
             Debug.Log("Command Registering...");
 
             for (int i = 0; i < ReflectionManager.types.Count; i++)
@@ -86,21 +91,21 @@ namespace Rumi.BrigadierForLethalCompany.API
         public static void ExecuteCommand(string command)
         {
             Debug.Log("Sending commands to the server side : " + command);
-            InternalExecuteCommandServerRpc(command, GameNetworkManager.Instance.localPlayerController);
+            InternalExecuteCommandServerRpc(command);
         }
 
         [ServerRpc]
-        static void InternalExecuteCommandServerRpc(string command, NetworkBehaviourReference entityRef)
+        static void InternalExecuteCommandServerRpc(string command, ServerRpcParams rpcParams = default)
         {
             if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer)
                 return;
 
-            if (!entityRef.TryGet(out var entity) || entity is not PlayerControllerB player)
+            if (!rpcParams.TryGetPlayer(out PlayerControllerB? player))
                 return;
 
             Debug.Log($"Received command from {player.playerUsername} : {command}");
 
-            ServerCommandSource source = new ServerCommandSource(player);
+            ServerCommandSource source = new ServerCommandSource(player, IsOp(player));
             try
             {
                 dispatcher.Execute(command, source);
@@ -124,7 +129,7 @@ namespace Rumi.BrigadierForLethalCompany.API
         {
             Debug.LogD($"Requesting intelli sense to the server side : {cursor} : {command}");
 
-            InternalRequestIntelliSenseServerRpc(command, cursor, GameNetworkManager.Instance.localPlayerController);
+            InternalRequestIntelliSenseServerRpc(command, cursor);
             requestedIntelliSense = action;
         }
 
@@ -134,28 +139,25 @@ namespace Rumi.BrigadierForLethalCompany.API
         public static void CancelRequestIntelliSense() => requestedIntelliSense = null;
 
         [ServerRpc]
-        static async void InternalRequestIntelliSenseServerRpc(string command, int cursor, NetworkBehaviourReference requester)
+        static async void InternalRequestIntelliSenseServerRpc(string command, int cursor, ServerRpcParams rpcParams = default)
         {
             if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer)
                 return;
 
-            if (!requester.TryGet(out PlayerControllerB player))
+            if (!rpcParams.TryGetPlayer(out PlayerControllerB? player))
                 return;
 
             Debug.LogD($"Received request intelli sense from {player.playerUsername} : {cursor} : {command}");
 
-            NetworkIntelliSenseArray intelliSenseArray = await BFLCUtility.GetIntelliSenseText(dispatcher, command, new ServerCommandSource(player), cursor);
+            NetworkIntelliSenseArray intelliSenseArray = await BFLCUtility.GetIntelliSenseText(dispatcher, command, new ServerCommandSource(player, IsOp(player)), cursor);
             Debug.LogD($"Sending intelli sense to {player.playerUsername} : {intelliSenseArray}");
 
-            SendIntelliSenseClientRpc(intelliSenseArray, requester);
+            SendIntelliSenseClientRpc(intelliSenseArray, player.ToRpc());
         }
 
         [ClientRpc]
-        static void SendIntelliSenseClientRpc(NetworkIntelliSenseArray intelliSenseArray, NetworkBehaviourReference requester)
+        static void SendIntelliSenseClientRpc(NetworkIntelliSenseArray intelliSenseArray, ClientRpcParams rpcParams = default)
         {
-            if (!requester.TryGet(out PlayerControllerB player) || player != GameNetworkManager.Instance.localPlayerController)
-                return;
-
             Debug.LogD($"Received intelli sense from server side : {intelliSenseArray}");
             requestedIntelliSense?.Invoke(intelliSenseArray);
         }
@@ -173,5 +175,47 @@ namespace Rumi.BrigadierForLethalCompany.API
             }
         }
 #pragma warning restore CS1591 // 공개된 형식 또는 멤버에 대한 XML 주석이 없습니다.
+
+        /// <summary>
+        /// 플레이어가 OP 권한을 가지고 있는지 확인합니다.
+        /// </summary>
+        public static bool IsOp(PlayerControllerB player)
+        {
+            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer)
+                return false;
+
+            if (GameNetworkManager.Instance.disableSteam)
+                return opLists.Contains(player.playerClientId);
+            else
+                return opLists.Contains(player.playerSteamId);
+        }
+
+        /// <summary>
+        /// 플레이어에게 OP 권한을 부여합니다.
+        /// </summary>
+        public static bool AddOp(PlayerControllerB targetPlayer)
+        {
+            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer)
+                return false;
+
+            if (GameNetworkManager.Instance.disableSteam)
+                return opLists.Add(targetPlayer.playerClientId);
+            else
+                return opLists.Add(targetPlayer.playerSteamId);
+        }
+
+        /// <summary>
+        /// 플레이어에게 OP 권한을 회수합니다.
+        /// </summary>
+        public static bool RemoveOp(PlayerControllerB targetPlayer)
+        {
+            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer)
+                return false;
+
+            if (GameNetworkManager.Instance.disableSteam)
+                return opLists.Remove(targetPlayer.playerClientId);
+            else
+                return opLists.Remove(targetPlayer.playerSteamId);
+        }
     }
 }

@@ -8,11 +8,11 @@ namespace Rumi.LethalCheat.API.Commands
 {
     public sealed class TimeCommand : ServerCommand
     {
-        public const string resultGetText = "The time is {h}:{m} ({value})";
-        public const string resultSetText = "Set the time to {h}:{m} ({value})";
+        public const string resultGetText = "The time is {0}:{1:00} ({2})";
+        public const string resultSetText = "Set the time to {0}:{1:00} ({2})";
 
-        public const string resultSpeedGetText = "The time speed is {value}";
-        public const string resultSpeedSetText = "Set the time speed to {value}";
+        public const string resultSpeedGetText = "The time speed is {0}";
+        public const string resultSpeedSetText = "Set the time speed to {0}";
 
         TimeCommand() { }
 
@@ -23,6 +23,7 @@ namespace Rumi.LethalCheat.API.Commands
             //time speed <float:speed>
             dispatcher.Register(x =>
                 x.Literal("time")
+                    .Requires(x => x.isOp)
                     .Then(x =>
                         x.Literal("get")
                             .Executes(x =>
@@ -31,7 +32,7 @@ namespace Rumi.LethalCheat.API.Commands
 
                                 int hour = Mathf.FloorToInt(time);
                                 int minute = (int)((time - hour) * 60);
-                                x.Source.SendCommandResult(resultGetText.Replace("{h}", hour.ToString()).Replace("{m}", minute.ToString("00")).Replace("{value}", time.ToString()), false);
+                                x.Source.SendCommandResult(string.Format(resultGetText, hour, minute, time), false);
 
                                 return hour;
                             })
@@ -47,7 +48,7 @@ namespace Rumi.LethalCheat.API.Commands
 
                                         int hour = Mathf.FloorToInt(time);
                                         int minute = (int)((time - hour) * 60);
-                                        x.Source.SendCommandResult(resultSetText.Replace("{h}", hour.ToString()).Replace("{m}", minute.ToString("00")).Replace("{value}", time.ToString()), false);
+                                        x.Source.SendCommandResult(string.Format(resultSetText, hour, minute, time));
 
                                         return hour;
                                     })
@@ -58,7 +59,7 @@ namespace Rumi.LethalCheat.API.Commands
                             .Executes(x =>
                             {
                                 float speed = GetTimeSpeed();
-                                x.Source.SendCommandResult(resultSpeedGetText.Replace("{value}", speed.ToString()), false);
+                                x.Source.SendCommandResult(string.Format(resultSpeedGetText, speed), false);
 
                                 return Mathf.FloorToInt(speed);
                             })
@@ -69,7 +70,7 @@ namespace Rumi.LethalCheat.API.Commands
                                         float speed = Arguments.GetFloat(x, "speed");
                                         SetTimeSpeed(speed);
 
-                                        x.Source.SendCommandResult(resultSpeedSetText.Replace("{value}", speed.ToString()));
+                                        x.Source.SendCommandResult(string.Format(resultSpeedSetText, speed.ToString()));
 
                                         return Mathf.FloorToInt(speed);
                                     })

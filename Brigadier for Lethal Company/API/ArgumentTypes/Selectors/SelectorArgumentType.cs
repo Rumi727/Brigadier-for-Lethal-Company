@@ -37,21 +37,21 @@ namespace Rumi.BrigadierForLethalCompany.API.ArgumentTypes.Selectors
                 if (!reader.CanRead())
                     throw CommandSyntaxException.BuiltInExceptions.SelectorUnkown().CreateWithContext(reader, string.Empty);
 
-                IEnumerable<NetworkBehaviour> entitys = GetEntitys();
+                IEnumerable<NetworkBehaviour> entitys = BFLCUtility.GetEntitys();
 
                 char peek = reader.Peek();
                 reader.Skip();
 
                 if (peek == 'a')
-                    return new SelectorArgumentValue(GetPlayers(), SelectorType.none, GetOptions(reader));
+                    return new SelectorArgumentValue(BFLCUtility.GetPlayers(), SelectorType.none, GetOptions(reader));
                 else if (peek == 'p')
-                    return new SelectorArgumentValue(GetPlayers(), SelectorType.nearby, GetOptions(reader, false, true));
+                    return new SelectorArgumentValue(BFLCUtility.GetPlayers(), SelectorType.nearby, GetOptions(reader, false, true));
                 else if (peek == 'r')
-                    return new SelectorArgumentValue(GetPlayers(), SelectorType.random, GetOptions(reader, false, true));
+                    return new SelectorArgumentValue(BFLCUtility.GetPlayers(), SelectorType.random, GetOptions(reader, false, true));
                 else if (peek == 'e')
-                    return new SelectorArgumentValue(GetEntitys(), SelectorType.none, GetOptions(reader, true, false));
+                    return new SelectorArgumentValue(BFLCUtility.GetEntitys(), SelectorType.none, GetOptions(reader, true, false));
                 else if (peek == 'n')
-                    return new SelectorArgumentValue(GetEntitys(), SelectorType.nearby, GetOptions(reader, true, true));
+                    return new SelectorArgumentValue(BFLCUtility.GetEntitys(), SelectorType.nearby, GetOptions(reader, true, true));
                 else if (peek == 's')
                     return new SelectorArgumentValue([], SelectorType.sender, GetOptions(reader, false, true));
                 else
@@ -60,7 +60,7 @@ namespace Rumi.BrigadierForLethalCompany.API.ArgumentTypes.Selectors
             else
             {
                 string name = reader.ReadString();
-                return new SelectorArgumentValue(GetPlayers().Where(x => x.playerUsername == name), SelectorType.none);
+                return new SelectorArgumentValue(BFLCUtility.GetPlayers().Where(x => x.playerUsername == name), SelectorType.none);
             }
         }
 
@@ -168,7 +168,14 @@ namespace Rumi.BrigadierForLethalCompany.API.ArgumentTypes.Selectors
             if ("@n".StartsWith(builder.Remaining))
                 builder.Suggest("@n");
 
-            foreach (var item in GetPlayers())
+            PlayerListSuggestions(BFLCUtility.GetPlayers(), context, builder);
+
+            return builder.BuildAsync();
+        }
+
+        public static void PlayerListSuggestions<TSource>(IEnumerable<PlayerControllerB> players, CommandContext<TSource> context, SuggestionsBuilder builder)
+        {
+            foreach (var item in players)
             {
                 bool singleQuote = true;
                 bool unquotedString = true;
@@ -193,11 +200,6 @@ namespace Rumi.BrigadierForLethalCompany.API.ArgumentTypes.Selectors
                 if (suggest.StartsWith(builder.Remaining))
                     builder.Suggest(suggest);
             }
-
-            return builder.BuildAsync();
         }
-
-        static IEnumerable<PlayerControllerB> GetPlayers() => StartOfRound.Instance.ClientPlayerList.Values.Select(static x => StartOfRound.Instance.allPlayerScripts[x]);
-        static IEnumerable<NetworkBehaviour> GetEntitys() => GetPlayers().OfType<NetworkBehaviour>().Concat(UnityEngine.Object.FindObjectsByType<EnemyAI>(FindObjectsSortMode.None)).Concat(UnityEngine.Object.FindObjectsByType<Anomaly>(FindObjectsSortMode.None)).Concat(UnityEngine.Object.FindObjectsByType<GrabbableObject>(FindObjectsSortMode.None));
     }
 }

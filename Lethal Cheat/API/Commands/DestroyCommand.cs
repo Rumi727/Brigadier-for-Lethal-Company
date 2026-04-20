@@ -8,7 +8,7 @@ namespace Rumi.LethalCheat.API.Commands
 {
     public sealed class DestroyCommand : ServerCommand
     {
-        public const string resultText = "Destroyed {targets}";
+        public const string resultText = "Destroyed {0}";
 
         DestroyCommand() { }
 
@@ -18,12 +18,13 @@ namespace Rumi.LethalCheat.API.Commands
             //destroy <Entity:destination>
             dispatcher.Register(x =>
                 x.Literal("destroy")
+                    .Requires(x => x.isOp)
                     .Executes(x =>
                     {
                         if (x.Source.sender != null && x.Source.player == null)
                         {
                             DestroyEntity(x.Source.sender);
-                            x.Source.SendCommandResult(resultText.Replace("{targets}", x.Source.sender.GetEntityName()));
+                            x.Source.SendCommandResult(string.Format(resultText, x.Source.sender.GetEntityName()));
 
                             return 1;
                         }
@@ -55,7 +56,7 @@ namespace Rumi.LethalCheat.API.Commands
                                         }
                                     }
 
-                                    x.Source.SendCommandResult(resultText.Replace("{targets}", targets.GetEntityName(count)));
+                                    x.Source.SendCommandResult(string.Format(resultText, targets.GetEntityName(count)));
 
                                     return count;
                                 }

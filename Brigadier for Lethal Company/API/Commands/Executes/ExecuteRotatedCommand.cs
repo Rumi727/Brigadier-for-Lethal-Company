@@ -13,6 +13,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Commands.Executes
             //execute rotated <Vector3:rot> -> execute
             dispatcher.Register(x =>
                 x.Literal("execute")
+                    .Requires(x => x.isOp)
                     .Then(x =>
                         x.Literal("rotated")
                             .Then(x =>

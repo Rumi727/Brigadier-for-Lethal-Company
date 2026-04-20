@@ -1,5 +1,6 @@
 using GameNetcodeStuff;
 using System;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -28,6 +29,9 @@ namespace Rumi.BrigadierForLethalCompany.API
 
         /// <summary>현재 회전값</summary>
         public Vector3 rotation { get; private set; } = Vector3.zero;
+
+        /// <summary>현재 명령어가 OP 권한인가</summary>
+        public bool isOp { get; private set; } = false;
 
         /// <summary>현재 상태를 문자열로 변환합니다</summary>
         public override string ToString() => $"{nameof(name)}:{name}, {nameof(sender)}:{sender}, {nameof(player)}:{player}, {nameof(position)}:{position}, {nameof(rotation)}:{rotation}";
@@ -63,10 +67,10 @@ namespace Rumi.BrigadierForLethalCompany.API
             if (sender == null)
                 return;
 
-            BFLCUtility.SendChat($"<color=white><size=10>{text}</size></color>", player);
+            BFLCUtility.SendChat($"<color=white><size=10>{text}</size></color>", firstPlayer);
 
             if (sendGlobal)
-                BFLCUtility.SendGlobalChat($"<color=#aaaaaa><size=10><i>[{sender.GetEntityName()}] {text}</i></size></color>", player);
+                BFLCUtility.SendChat($"<color=#aaaaaa><size=10><i>[{sender.GetEntityName()}] {text}</i></size></color>", BFLCUtility.GetPlayers().Where(x => x != firstPlayer));
         }
 
         /// <summary>커맨드 결과를 채팅에 전송합니다</summary>
@@ -88,20 +92,23 @@ namespace Rumi.BrigadierForLethalCompany.API
         /// 커맨드 소스를 생성합니다
         /// </summary>
         /// <param name="name">개체 이름</param>
-        public ServerCommandSource(string name = "IL") : this(name, Vector3.zero, Vector3.zero) { }
+        /// <param name="isOp">OP 권한 여부</param>
+        public ServerCommandSource(string name = "IL", bool isOp = false) : this(name, Vector3.zero, Vector3.zero, isOp) { }
 
         /// <summary>
         /// 커맨드 소스를 생성합니다
         /// </summary>
         /// <param name="position">실행한 좌표</param>
         /// <param name="rotation">회전 값</param>
-        public ServerCommandSource(Vector3 position, Vector3 rotation) : this("IL", position, rotation) { }
+        /// <param name="isOp">OP 권한 여부</param>
+        public ServerCommandSource(Vector3 position, Vector3 rotation, bool isOp = false) : this("IL", position, rotation, isOp) { }
 
         /// <summary>
         /// 커맨드 소스를 생성합니다
         /// </summary>
         /// <param name="entity">실행한 엔티티</param>
-        public ServerCommandSource(NetworkBehaviour entity) : this(entity, entity.transform.position, entity.transform.eulerAngles) => sender = entity;
+        /// <param name="isOp">OP 권한 여부</param>
+        public ServerCommandSource(NetworkBehaviour entity, bool isOp = false) : this(entity, entity.transform.position, entity.transform.eulerAngles, isOp) => sender = entity;
 
         /// <summary>
         /// 커맨드 소스를 생성합니다
@@ -109,7 +116,8 @@ namespace Rumi.BrigadierForLethalCompany.API
         /// <param name="entity">실행한 엔티티</param>
         /// <param name="position">실행한 좌표</param>
         /// <param name="rotation">회전 값</param>
-        public ServerCommandSource(NetworkBehaviour entity, Vector3 position, Vector3 rotation) : this(entity.name, position, rotation)
+        /// <param name="isOp">OP 권한 여부</param>
+        public ServerCommandSource(NetworkBehaviour entity, Vector3 position, Vector3 rotation, bool isOp = false) : this(entity.name, position, rotation, isOp)
         {
             sender = entity;
             player = sender as PlayerControllerB;
@@ -122,12 +130,15 @@ namespace Rumi.BrigadierForLethalCompany.API
         /// <param name="name">개체 이름</param>
         /// <param name="position">실행한 좌표</param>
         /// <param name="rotation">회전 값</param>
-        public ServerCommandSource(string name, Vector3 position, Vector3 rotation)
+        /// <param name="isOp">OP 권한 여부</param>
+        public ServerCommandSource(string name, Vector3 position, Vector3 rotation, bool isOp = false)
         {
             this.name = name;
 
             this.position = position;
             this.rotation = rotation;
+
+            this.isOp = isOp;
         }
 
         /// <summary>

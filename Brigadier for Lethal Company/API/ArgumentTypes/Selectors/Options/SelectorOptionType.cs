@@ -17,10 +17,10 @@ namespace Rumi.BrigadierForLethalCompany.API.ArgumentTypes.Selectors.Options
         public const string itemType = "item";
 
         public IReadOnlyList<string> types => _types;
-        readonly List<string> _types = new List<string>();
+        readonly List<string> _types = [];
 
         public IReadOnlyList<string> ignoreTypes => _ignoreTypes;
-        readonly List<string> _ignoreTypes = new List<string>();
+        readonly List<string> _ignoreTypes = [];
 
         public override void Parse(IStringReader reader)
         {

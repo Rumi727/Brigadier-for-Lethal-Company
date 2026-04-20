@@ -14,6 +14,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Commands.Executes
             //execute loop <int:count> -> execute
             dispatcher.Register(x =>
                 x.Literal("execute")
+                    .Requires(x => x.isOp)
                     .Then(x =>
                         x.Literal("loop")
                             .Then(x =>

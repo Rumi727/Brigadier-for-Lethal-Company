@@ -11,8 +11,8 @@ namespace Rumi.LethalCheat.API.Commands
     [StaticNetcode]
     public sealed class TeleportCommand : ServerCommand
     {
-        public const string resultEntityText = "Teleported {targets} to {destination}";
-        public const string resultLocationText = "Teleported {targets} to {x}, {y}, {z}";
+        public const string resultEntityText = "Teleported {0} to {1}";
+        public const string resultLocationText = "Teleported {0} to {1}, {2}, {3}";
 
         TeleportCommand() { }
 
@@ -25,6 +25,7 @@ namespace Rumi.LethalCheat.API.Commands
             var node =
             dispatcher.Register(x =>
                 x.Literal("teleport")
+                    .Requires(x => x.isOp)
                     .Then(x =>
                         x.Argument("location", LethalArguments.Vector3())
                             .Executes(x =>
@@ -34,7 +35,7 @@ namespace Rumi.LethalCheat.API.Commands
                                     Vector3 position = LethalArguments.GetVector3(x, "location");
                                     TeleportEntity(x.Source.sender, position);
 
-                                    x.Source.SendCommandResult(resultLocationText.Replace("{targets}", x.Source.sender.GetEntityName()).Replace("{x}", position.x.ToString()).Replace("{y}", position.y.ToString()).Replace("{z}", position.z.ToString()));
+                                    x.Source.SendCommandResult(string.Format(resultLocationText, x.Source.sender.GetEntityName(), position.x, position.y, position.z));
 
                                     return 1;
                                 }
@@ -52,7 +53,7 @@ namespace Rumi.LethalCheat.API.Commands
                                     if (targets.CountIsOne())
                                     {
                                         TeleportEntity(x.Source.sender, targets.First().transform.position);
-                                        x.Source.SendCommandResult(resultEntityText.Replace("{targets}", x.Source.sender.GetEntityName()).Replace("{destination}", targets.GetEntityName()));
+                                        x.Source.SendCommandResult(string.Format(resultEntityText, x.Source.sender.GetEntityName(), targets.GetEntityName()));
 
                                         return 1;
                                     }
@@ -77,7 +78,7 @@ namespace Rumi.LethalCheat.API.Commands
                                             count++;
                                         }
 
-                                        x.Source.SendCommandResult(resultLocationText.Replace("{targets}", targets.GetEntityName(count)).Replace("{x}", position.x.ToString()).Replace("{y}", position.y.ToString()).Replace("{z}", position.z.ToString()));
+                                        x.Source.SendCommandResult(string.Format(resultLocationText, targets.GetEntityName(count), position.x, position.y, position.z));
 
                                         return count;
                                     })
@@ -100,7 +101,7 @@ namespace Rumi.LethalCheat.API.Commands
                                                 count++;
                                             }
 
-                                            x.Source.SendCommandResult(resultEntityText.Replace("{targets}", targets.GetEntityName(count)).Replace("{destination}", destination.GetEntityName()));
+                                            x.Source.SendCommandResult(string.Format(resultEntityText, targets.GetEntityName(), destination.GetEntityName()));
 
                                             return count;
                                         }
@@ -114,6 +115,7 @@ namespace Rumi.LethalCheat.API.Commands
             //tp -> teleport
             dispatcher.Register(x =>
                 x.Literal("tp")
+                    .Requires(x => x.isOp)
                     .Redirect(node)
             );
         }

@@ -15,6 +15,7 @@ namespace Rumi.LethalCheat.API.Commands
             //tellraw <Entity:targets> <string:message>
             dispatcher.Register(x =>
                 x.Literal("tellraw")
+                    .Requires(x => x.isOp)
                     .Then(x =>
                         x.Argument("targets", LethalArguments.Selector(true))
                             .Then(x =>

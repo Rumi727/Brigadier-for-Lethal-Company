@@ -14,6 +14,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Commands.Executes
             //execute align <PosSwizzleEnum:axes> -> execute
             dispatcher.Register(x =>
                 x.Literal("execute")
+                    .Requires(x => x.isOp)
                     .Then(x =>
                         x.Literal("align")
                             .Then(x =>

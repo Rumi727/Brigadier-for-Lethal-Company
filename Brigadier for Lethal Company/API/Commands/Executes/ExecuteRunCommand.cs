@@ -13,6 +13,7 @@ namespace Rumi.BrigadierForLethalCompany.API.Commands.Executes
                 //execute run ...
                 return _execute ??= ServerCommand.dispatcher.Register(x =>
                     x.Literal("execute")
+                        .Requires(x => x.isOp)
                         .Then(x =>
                             x.Literal("run")
                                 .Redirect(ServerCommand.dispatcher.Root)

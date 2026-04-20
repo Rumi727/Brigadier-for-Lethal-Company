@@ -18,20 +18,29 @@ credit set <int:credit>
 damage <int:amount>
 damage <Entity:destination> <int:amount>
 
+deop <Entity[]:targets>
+
 destroy
 destroy <Entity:destination>
 
-kill
-kill <Entity:targets>
+gamespeed get
+gamespeed set <float:time>
 
-summon enemy <EnemyType:entity>
-summon enemy <EnemyType:entity> <Vector3:location>
-summon anomaly <AnomalyType:entity>
-summon anomaly <AnomalyType:entity> <Vector3:location>
-summon item <Item:item>
-summon item <Item:item> <int:price>
-summon item <Item:item> <Vector3:location>
-summon item <Item:item> <Vector3:location> <int:price>
+invincibility
+invincibility <Entity[]:targets> get
+invincibility <Entity[]:targets> set <bool:value>
+
+kill
+kill <Entity[]:targets>
+
+op <Entity[]:targets>
+
+revive [<Entity[]:targets>]
+
+summon enemy <EnemyType:entity> [<Vector3:location>]
+summon anomaly <AnomalyType:entity> [<Vector3:location>]
+summon item <Item:item> [<int:price>]
+summon item <Item:item> <Vector3:location> [<int:price>]
 
 tp -> teleport
 
@@ -44,6 +53,5 @@ tellraw <Entity[]:targets> <string:message>
 
 time get
 time set <float:time>
-time speed
-time speed <float:speed>
+time speed [<float:speed>]
 ```

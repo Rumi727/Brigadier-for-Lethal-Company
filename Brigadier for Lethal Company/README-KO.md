@@ -59,10 +59,16 @@ Language available in README: [[**한국어 (대한민국)**](https://github.com
 [sort=far] 가장 먼 순으로 정렬\
 [sort=random] 랜덤 정렬
 
+... 알고 있어요\
+선택자쪽 코드가 굉장히 난잡하고 스파게티인거\
+마인크래프트의 소스코드를 뜯어보지 않고 만든거고, 선택자를 만들 당시엔 AI를 제대로 활용할 수 있을 정도가 아니였습니다.\
+그래서 네... 뭐 이렇게 됐네요\
+수정하기엔 솔직히, 귀찮아요...
+
 ## 커스텀 커맨드 추가
 
 [ServerCommand](https://github.com/Rumi727/Brigadier-for-Lethal-Company/blob/main/Brigadier%20for%20Lethal%20Company/API/ServerCommand.cs)를 상속하면\
-NetworkManager.OnInstantiated 단계에서 인스턴스가 생성되며, Register 메소드가 자동으로 호출됩니다.
+NetworkManager.OnServerStarted 단계에서 인스턴스가 생성되며, Register 메소드가 자동으로 호출됩니다.
 
 Register 메소드에서 ServerCommand.dispatcher에 노드를 등록하면 됩니다
 

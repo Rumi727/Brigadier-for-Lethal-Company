@@ -59,10 +59,16 @@ Example : ``@e[limit=1]`` Get the first entity among all entities
 [sort=far] Sort by furthest\
 [sort=random] Random sort
 
+I understand completely.\
+The selector code is incredibly messy and has become a tangled mess of spaghetti.\
+It was created without reverse-engineering the Minecraft source code, and back when I first wrote it, I wasn't really at the level where I could effectively leverage AI to help me.\
+So, yeah... that's how it ended up.\
+Honestly, I just can't be bothered to fix it at this point...
+
 ## Add custom commands
 
 If you inherit [ServerCommand](https://github.com/Rumi727/Brigadier-for-Lethal-Company/blob/main/Brigadier%20for%20Lethal%20Company/API/ServerCommand.cs)\
-An instance is created at the NetworkManager.OnInstantiated stage and the Register method is automatically called.
+An instance is created at the NetworkManager.OnServerStarted stage and the Register method is automatically called.
 
 You can register the node to ServerCommand.dispatcher in the Register method.
 

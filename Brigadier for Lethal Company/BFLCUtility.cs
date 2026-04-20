@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Unity.Netcode;
+using UnityEngine;
 
 namespace Rumi.BrigadierForLethalCompany
 {
@@ -21,38 +22,26 @@ namespace Rumi.BrigadierForLethalCompany
         /// </summary>
         public static void SendChat(string text, PlayerControllerB? targetPlayer)
         {
-            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer || targetPlayer == null)
+            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer)
                 return;
 
-            InternalChatClientRpc(text, targetPlayer);
-        }
-
-        [ClientRpc]
-        static void InternalChatClientRpc(string text, NetworkBehaviourReference networkBehaviourReference)
-        {
-            if (networkBehaviourReference.TryGet(out PlayerControllerB player) && player == GameNetworkManager.Instance.localPlayerController)
-                AddChatClient(text);
+            InternalChatClientRpc(text, targetPlayer.ToRpc());
         }
 
         /// <summary>
-        /// 서버 측에서 특정 클라이언트를 제외한 모든 클라이언트로 채팅을 전송합니다
+        /// 서버 측에서 특정 클라이언트로 커맨드 결과를 전송합니다
         /// </summary>
-        public static void SendGlobalChat(string text, PlayerControllerB? targetPlayer)
+        public static void SendChat(string text, params IEnumerable<PlayerControllerB?> targetPlayers)
         {
             if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer)
                 return;
 
-            InternalSendGlobalChatClientRpc(text, targetPlayer != null ? targetPlayer : new NetworkBehaviourReference());
+            if (targetPlayers.Any())
+                InternalChatClientRpc(text, targetPlayers.ToRpc());
         }
 
         [ClientRpc]
-        static void InternalSendGlobalChatClientRpc(string text, NetworkBehaviourReference networkBehaviourReference)
-        {
-            if (networkBehaviourReference.TryGet(out PlayerControllerB player) && player == GameNetworkManager.Instance.localPlayerController)
-                return;
-
-            AddChatClient(text);
-        }
+        static void InternalChatClientRpc(string text, ClientRpcParams rpcParams = default) => AddChatClient(text);
 
         /// <summary>
         /// 클라이언트에 "하얀색" 채팅을 추가합니다
@@ -96,6 +85,23 @@ namespace Rumi.BrigadierForLethalCompany
                 return $"{count} entities";
         }
 
+        public static string GetPlayerName(this IEnumerable<PlayerControllerB> entitys, int count = -1)
+        {
+            if (entitys.CountIsOne())
+            {
+                NetworkBehaviour entity = entitys.First();
+                if (entity is PlayerControllerB player)
+                    return player.playerUsername;
+
+                return entity.name;
+            }
+
+            if (count < 0)
+                return $"{entitys.Count()} players";
+            else
+                return $"{count} players";
+        }
+
         /// <summary>
         /// 명령어 입력 값에 해당하는 디스패처의 인틀리샌스 텍스트를 가져옵니다
         /// </summary>
@@ -115,7 +121,22 @@ namespace Rumi.BrigadierForLethalCompany
 
             // 자동 완성
             {
-                List<Suggestion> suggestions = (await dispatcher.GetCompletionSuggestions(parseResults, cursor)).List;
+                var completionResult = await dispatcher.GetCompletionSuggestions(parseResults, cursor);
+                List<Suggestion> suggestions = completionResult.List;
+
+                SuggestionContext<TSource> suggestionContext = parseResults.Context.FindSuggestionContext(cursor);
+                if (suggestionContext.Parent == dispatcher.Root)
+                {
+                    suggestions.RemoveAll(suggestion =>
+                    {
+                        var childNode = suggestionContext.Parent.Children
+                            .OfType<LiteralCommandNode<TSource>>()
+                            .FirstOrDefault(c => c.Name == suggestion.Text);
+
+                        return childNode != null && !childNode.CanUse(source);
+                    });
+                }
+
                 if (suggestions.Count > 0)
                     return new NetworkIntelliSenseArray(NetworkIntelliSenseArray.Type.suggestion, [.. suggestions.Select(x => (NetworkIntelliSenseArray.Suggestion)x)]);
             }
@@ -140,5 +161,8 @@ namespace Rumi.BrigadierForLethalCompany
 
             return new NetworkIntelliSenseArray();
         }
+
+        public static IEnumerable<PlayerControllerB> GetPlayers() => StartOfRound.Instance.ClientPlayerList.Values.Select(static x => StartOfRound.Instance.allPlayerScripts[x]);
+        public static IEnumerable<NetworkBehaviour> GetEntitys() => GetPlayers().OfType<NetworkBehaviour>().Concat(UnityEngine.Object.FindObjectsByType<EnemyAI>(FindObjectsSortMode.None)).Concat(UnityEngine.Object.FindObjectsByType<Anomaly>(FindObjectsSortMode.None)).Concat(UnityEngine.Object.FindObjectsByType<GrabbableObject>(FindObjectsSortMode.None));
     }
 }

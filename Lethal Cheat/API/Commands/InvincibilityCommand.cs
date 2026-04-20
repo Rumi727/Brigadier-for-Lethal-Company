@@ -27,6 +27,7 @@ namespace Rumi.LethalCheat.API.Commands
             //invincibility <Entity:targets> set <bool:value>
             dispatcher.Register(x =>
                 x.Literal("invincibility")
+                    .Requires(x => x.isOp)
                     .Executes(x =>
                     {
                         if (x.Source.sender is PlayerControllerB player)
@@ -115,7 +116,7 @@ namespace Rumi.LethalCheat.API.Commands
             if (invincibilityList.ContainsKey(player))
                 invincibilityList.Remove(player);
 
-            InternalGetInvincibilityClientRpc(player);
+            InternalGetInvincibilityClientRpc(player.ToRpc());
 
             Stopwatch stopwatch = Stopwatch.StartNew();
             while (!invincibilityList.ContainsKey(player))
@@ -133,19 +134,16 @@ namespace Rumi.LethalCheat.API.Commands
         }
 
         [ClientRpc]
-        static void InternalGetInvincibilityClientRpc(NetworkBehaviourReference entityRef)
+        static void InternalGetInvincibilityClientRpc(ClientRpcParams rpcParams = default)
         {
-            if (!entityRef.TryGet(out PlayerControllerB player) || player != GameNetworkManager.Instance.localPlayerController)
-                return;
-
             //클라에서 요청 수신
-            InternalGetInvincibilityServerRpc(player, !StartOfRound.Instance.allowLocalPlayerDeath);
+            InternalGetInvincibilityServerRpc(!StartOfRound.Instance.allowLocalPlayerDeath);
         }
 
         [ServerRpc]
-        static void InternalGetInvincibilityServerRpc(NetworkBehaviourReference entityRef, bool value)
+        static void InternalGetInvincibilityServerRpc(bool value, ServerRpcParams rpcParams = default)
         {
-            if (entityRef.TryGet(out PlayerControllerB player))
+            if (rpcParams.TryGetPlayer(out PlayerControllerB? player))
                 invincibilityList[player] = value;
         }
 
@@ -158,16 +156,10 @@ namespace Rumi.LethalCheat.API.Commands
             if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer)
                 return;
 
-            InternalSetInvincibilityClientRpc(player, value);
+            InternalSetInvincibilityClientRpc(value, player.ToRpc());
         }
 
         [ClientRpc]
-        static void InternalSetInvincibilityClientRpc(NetworkBehaviourReference entityRef, bool value)
-        {
-            if (!entityRef.TryGet(out PlayerControllerB player) || player != GameNetworkManager.Instance.localPlayerController)
-                return;
-
-            StartOfRound.Instance.allowLocalPlayerDeath = !value;
-        }
+        static void InternalSetInvincibilityClientRpc(bool value, ClientRpcParams rpcParams = default) => StartOfRound.Instance.allowLocalPlayerDeath = !value;
     }
 }

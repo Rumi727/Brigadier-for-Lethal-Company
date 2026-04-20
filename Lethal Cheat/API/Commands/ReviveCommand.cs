@@ -11,7 +11,7 @@ namespace Rumi.LethalCheat.API.Commands
     [StaticNetcode]
     public sealed class ReviveCommand : ServerCommand
     {
-        public const string resultText = "Revived {targets}";
+        public const string resultText = "Revived {0}";
 
         ReviveCommand() { }
 
@@ -21,12 +21,13 @@ namespace Rumi.LethalCheat.API.Commands
             //revive <Entity:targets>
             dispatcher.Register(x =>
                 x.Literal("revive")
+                    .Requires(x => x.isOp)
                     .Executes(x =>
                     {
                         if (x.Source.sender is PlayerControllerB player)
                         {
                             RevivePlayer(player);
-                            x.Source.SendCommandResult(resultText.Replace("{targets}", x.Source.sender.GetEntityName()));
+                            x.Source.SendCommandResult(string.Format(resultText, x.Source.sender.GetEntityName()));
 
                             return 1;
                         }
@@ -56,7 +57,7 @@ namespace Rumi.LethalCheat.API.Commands
                                     }
                                 }
 
-                                x.Source.SendCommandResult(resultText.Replace("{targets}", targets.GetEntityName(count)));
+                                x.Source.SendCommandResult(string.Format(resultText, targets.GetEntityName(count)));
 
                                 return count;
                             })

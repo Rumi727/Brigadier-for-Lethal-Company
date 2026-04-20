@@ -9,7 +9,7 @@ namespace Rumi.LethalCheat.API.Commands
 {
     public sealed class DamageCommand : ServerCommand
     {
-        public const string resultText = "Applied {value} damage to {targets}";
+        public const string resultText = "Applied {0} damage to {1}";
 
         DamageCommand() { }
 
@@ -19,6 +19,7 @@ namespace Rumi.LethalCheat.API.Commands
             //damage <Entity:destination> <int:amount>
             dispatcher.Register(x =>
                 x.Literal("damage")
+                    .Requires(x => x.isOp)
                     .Then(x =>
                         x.Argument("amount", Arguments.Integer())
                             .Executes(x =>
@@ -28,7 +29,7 @@ namespace Rumi.LethalCheat.API.Commands
                                     int amount = Arguments.GetInteger(x, "amount");
                                     DamageEntity(x.Source.sender, amount);
 
-                                    x.Source.SendCommandResult(resultText.Replace("{value}", amount.ToString()).Replace("{targets}", x.Source.sender.GetEntityName()));
+                                    x.Source.SendCommandResult(string.Format(resultText, amount, x.Source.sender.GetEntityName()));
 
                                     return 1;
                                 }
@@ -62,7 +63,7 @@ namespace Rumi.LethalCheat.API.Commands
                                             }
                                         }
 
-                                        x.Source.SendCommandResult(resultText.Replace("{value}", amount.ToString()).Replace("{targets}", targets.GetEntityName(count)));
+                                        x.Source.SendCommandResult(string.Format(resultText, amount, targets.GetEntityName(count)));
 
                                         return count;
                                     })

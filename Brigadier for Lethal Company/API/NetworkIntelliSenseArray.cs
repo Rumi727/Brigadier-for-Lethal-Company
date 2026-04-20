@@ -37,7 +37,7 @@ namespace Rumi.BrigadierForLethalCompany.API
             }
         }
 
-        public override readonly string ToString() => $"NetworkIntelliSenseArray{{isSuggestion={type}, length={length}}}";
+        public override readonly string ToString() => $"NetworkIntelliSenseArray{{type={type}, length={length}}}";
 
         void INetworkSerializable.NetworkSerialize<T>(BufferSerializer<T> serializer)
         {
